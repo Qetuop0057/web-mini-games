@@ -1,9 +1,8 @@
-import { mkdir, copyFile } from "node:fs/promises";
-import { fileURLToPath } from "node:url";
-import { join } from "node:path";
-const root = fileURLToPath(new URL(".", import.meta.url));
-// 独立游戏无需框架构建，只把浏览器运行文件复制到部署目录。
-await mkdir(join(root, "out"), { recursive: true });
-for (const file of ["index.html", "app.mjs", "engine.mjs", "style.css"]) {
-  await copyFile(join(root, file), join(root, "out", file));
-}
+import {mkdir,copyFile,cp,rm} from 'node:fs/promises';
+import {fileURLToPath} from 'node:url';
+import {join} from 'node:path';
+const root=fileURLToPath(new URL('.',import.meta.url));
+// Always replace the old static output; copy only browser runtime files.
+await rm(join(root,'out'),{recursive:true,force:true});await mkdir(join(root,'out'),{recursive:true});
+for(const file of ['index.html','app.mjs','engine.mjs','simulation.mjs','art.mjs','style.css'])await copyFile(join(root,file),join(root,'out',file));
+await cp(join(root,'assets'),join(root,'out/assets'),{recursive:true});
