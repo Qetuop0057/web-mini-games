@@ -6,3 +6,5 @@
 
 /* Keep the interface focused on titles and controls. */
 .card-body{position:relative;padding:22px 25px}.card-body h3{margin:0;padding-right:25px}.card-arrow{position:absolute;right:25px;top:24px;font-size:20px}.game-status{display:block;margin-top:12px;font-size:16px;color:var(--muted)}.collection{padding-bottom:65px}.hero .button{margin-top:12px}.stats-row span{font-size:14px;letter-spacing:0}.preview-status{margin-top:25px;font-size:16px;color:var(--muted)}.supply,.price-label,.total-line{font-size:16px}.back-link,nav,.button,.section-heading a{font-size:16px}
+
+.hero{display:block;padding:36px 0 24px}.hero .button{margin-top:0}
