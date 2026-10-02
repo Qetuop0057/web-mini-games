@@ -16,9 +16,8 @@ export default async function GamePage({ params }: { params: Promise<{ slug: str
     <Link href="/games" className="back-link">← All games</Link>
     <div className="game-title"><div><h1>{game.title}</h1></div><span className={`title-icon ${game.color}`}>{game.icon}</span></div>
     <div className="game-overview"><section><h2>About the game</h2><p>{game.about}</p>
-      <h2>How to play</h2><ol className="how-to-play">{game.instructions.map(step => <li key={step}>{step}</li>)}</ol>
     </section><aside className="launch-panel"><span className="launch-icon" aria-hidden="true">{game.icon}</span>
-      {game.playUrl ? <><a className="button start-game" href={game.playUrl}><span aria-hidden="true">▶</span> Start game <span aria-hidden="true">↗</span></a><p>Play on the game’s own website.</p></> : <h2>Coming soon</h2>}
+      {game.playUrl ? <a className="button start-game" href={game.playUrl}>Start game</a> : <h2>Coming soon</h2>}
     </aside></div>
     <section className="preview-section"><h2>Preview</h2>{game.previews.length > 0 ? <div className="preview-grid">{game.previews.map(preview => <figure key={preview.src}><a href={preview.src} target="_blank" rel="noopener noreferrer" aria-label={`View ${preview.alt}`}><Image src={preview.src} alt={preview.alt} width={1100} height={1000} unoptimized className="preview-image" /></a><figcaption>{preview.caption}</figcaption></figure>)}</div> : <div className="preview-empty">Screenshots will be added when this game is ready.</div>}</section>
   </div>;
