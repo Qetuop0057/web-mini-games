@@ -33,3 +33,23 @@
 .tv-feet{height:12px;margin:0 44px;border-left:15px solid #49372b;border-right:15px solid #49372b}
 .news-channel{background:#335851}.news-channel .tv-station{background:#193d39}.tv-news-story h3{font:700 14px monospace;color:#ffdc78;margin:8px 0}.tv-news-story p{font-size:16px;line-height:1.45;margin:0 0 16px}
 @media(max-width:650px){.television{padding-top:16px}.tv-antenna{top:-4px}.tv-case{grid-template-columns:minmax(0,1fr) 42px;gap:7px;padding:14px 8px;border-width:4px}.tv-screen{border-width:5px;border-radius:18px}.tv-station{padding:8px;font-size:12px}.tv-program{padding:12px 10px;min-height:220px}.tv-program h2{font-size:20px}.tv-forecasts{gap:7px}.tv-weather-card{padding:8px 4px}.tv-temperature{font-size:25px}.tv-ticker{padding:8px;font-size:12px}.tv-controls{gap:14px}.tv-knob{width:30px;height:30px}.tv-speaker{width:27px;height:55px}.tv-controls .tv-switch{width:36px;height:36px;font-size:24px}.tv-close{top:19px;right:5px;width:25px;height:25px;font-size:22px}.tv-news-story p{font-size:14px}}
+
+/* Keep preparation in one compact panel; the shop and results keep their layouts. */
+#setup{width:min(500px,100%);padding:14px 16px}
+.stand-heading{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:6px}
+#setup h2{margin:0;font-size:22px}#setup #setup-location{margin:0;font-size:16px}
+.stand-weather{display:flex;flex-wrap:wrap;gap:2px 14px;margin-bottom:8px}
+#setup .forecast,#setup .forecast-next{margin:0;font-size:14px;line-height:1.4}
+#setup #stand-stock{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:0}
+#setup #stand-stock div{padding:5px 6px;text-align:center;font-size:14px;line-height:1.3}
+#setup #stand-stock strong{font-size:20px;line-height:1.2}
+#setup #stand-capacity{margin:6px 0 8px;font-size:14px;line-height:1.3}
+.stand-recipe-label{font-size:14px;font-weight:700;border-top:1px solid #d5d3bf;padding-top:7px;margin-bottom:3px}
+#setup .recipe{grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin:0;padding:0;border:0}
+#setup .recipe label{font-size:14px;line-height:1.3}
+#setup input{min-height:36px;padding:5px;font-size:16px;margin-top:3px}
+#setup #error:empty{display:none}#setup #error{margin:7px 0 0;line-height:1.3}
+.stand-buttons{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;margin-top:12px;align-items:center}
+#setup .stand-buttons button{margin:0;min-height:40px;padding:7px 14px}
+#setup .stand-buttons .quiet{padding:7px 8px}
+@media(max-width:650px){#setup{padding:12px}#setup .recipe{gap:5px}#setup input{padding:5px 3px}.stand-heading{gap:8px}}
