@@ -31,3 +31,7 @@ Temperature still speeds arrivals and raises customer budgets. Weather additiona
 `simulation.mjs` owns customer state, movement, queue ownership and transactions. `art.mjs` renders the scene. `app.mjs` connects controls, audio and HUD. `engine.mjs` contains lab-derived economy helpers and the original batch rule retained for regression tests.
 
 Asset licenses and sources are recorded in `assets/credits.md`. No researched third-party game code was copied.
+
+## Home screen
+
+Each day begins at the player's house, with the stored stand in a fenced yard on the right. Go to stand opens the supply/price preparation panel; Home cancels preparation without spending money. Recipe shows the current draft quantities and taste balance. Looking at the recipe, returning home and preparing do not advance time, generate customers or reroll the forecast. Finishing a day and choosing Next day returns home with carried-over cash and inventory. Only Open stand buys supplies and starts the day.

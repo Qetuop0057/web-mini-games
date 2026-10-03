@@ -62,3 +62,42 @@ function umbrella(ctx,p,time){
  rect(-7,-5,14,3,light);rect(-15,-2,30,4,light);rect(-19,2,38,4,dark);rect(-20,6,40,3,dark);
  rect(-7,0,14,8,light);rect(-1,-8,2,3,'#495449');rect(-17,9,7,2,light);rect(-4,9,8,2,light);rect(10,9,7,2,light);
 }
+
+export function homeScene(ctx,time,conditions){
+ ctx.save();ctx.scale(2,2);ctx.imageSmoothingEnabled=false;
+ const rect=(x,y,w,h,c)=>{ctx.fillStyle=c;ctx.fillRect(x,y,w,h)};
+ const tile=(n,x,y,size=24)=>{if(town.complete&&town.naturalWidth)ctx.drawImage(town,(n%12)*16,Math.floor(n/12)*16,16,16,x,y,size,size)};
+ rect(0,0,480,300,'#87bc73');for(let y=0;y<300;y+=24)for(let x=0;x<480;x+=24)tile((x+y)%72===0?1:0,x,y);
+ for(const [x,y] of [[20,36],[430,26],[25,228],[416,263]]){tile(5,x,y,38);tile(2,x+28,y+27)}
+ // Front path joins the player's house to the enclosed yard on its right.
+ rect(131,198,37,102,'#e4bf92');rect(164,225,198,25,'#e4bf92');
+ rect(72,203,174,13,'#659257');rect(77,112,164,95,'#ead9a6');
+ rect(77,195,164,12,'#b59b76');rect(77,112,164,7,'#a68763');
+ // Stepped terracotta roof and a chimney.
+ rect(204,64,16,37,'#87674e');rect(201,61,22,6,'#a98566');
+ for(let i=0;i<10;i++){const x=66+i*8,y=112-i*5,w=186-i*16;rect(x,y,w,6,i%2?'#ad644e':'#bd7454')}
+ rect(65,114,188,5,'#715840');
+ for(const x of [95,189]){
+  rect(x-3,134,34,38,'#ab7e53');rect(x,137,28,29,'#5d8b9c');rect(x+3,140,10,10,'#b2d3d3');rect(x+15,140,10,10,'#b2d3d3');rect(x+13,137,3,29,'#dfc494');rect(x,151,28,3,'#dfc494');rect(x-5,170,38,5,'#8f7555');
+ }
+ rect(133,153,31,54,'#795c41');rect(137,157,23,45,'#aa7c4b');rect(153,181,3,3,'#f2d382');rect(129,206,39,6,'#c4b595');
+ person(ctx,{x:151,y:236,dir:'down',moving:false,tint:0},time);
+ // Yard fence, with an opening facing the house path.
+ for(const y of [126,247]){
+  rect(279,y+7,171,3,'#d7bf8a');rect(279,y+16,171,3,'#d7bf8a');
+  for(let x=279;x<=447;x+=14){rect(x,y,5,24,'#efdbab');rect(x+1,y-2,3,2,'#efdbab')}
+ }
+ rect(330,246,29,27,'#e4bf92');
+ for(const x of [279,447])for(let y=143;y<247;y+=20){rect(x,y,5,25,'#efdbab');rect(x,y+9,7,3,'#d7bf8a')}
+ rect(310,211,107,8,'#659257');rect(319,164,4,44,'#755039');rect(402,164,4,44,'#755039');
+ for(let i=0;i<9;i++){rect(311+i*11,143,11,21,i%2?'#fff4ce':'#f5cb43');rect(311+i*11,164,11,5,i%2?'#e3d5b2':'#dcb033')}
+ rect(320,193,86,5,'#986842');rect(324,198,78,18,'#c99459');rect(337,201,52,11,'#fff2cf');
+ ctx.fillStyle='#725637';ctx.font='bold 8px monospace';ctx.textAlign='center';ctx.fillText('LEMONADE',363,210);
+ rect(419,208,17,17,'#a2764b');rect(422,212,11,2,'#755339');rect(422,218,11,2,'#755339');
+ if(conditions.id==='rainy'||conditions.id==='cloudy')rect(0,0,480,300,conditions.id==='rainy'?'#344a6e38':'#67778a1c');
+ if(conditions.id==='rainy'){
+  ctx.strokeStyle='#d5e5ed99';ctx.lineWidth=1;
+  for(let i=0;i<55;i++){const x=(i*83+time*30)%500-10,y=(i*47+time*145)%320-10;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-3,y+8);ctx.stroke()}
+ }else if(conditions.id==='heatwave')rect(0,0,480,300,'#ffd77919');
+ ctx.restore();
+}
