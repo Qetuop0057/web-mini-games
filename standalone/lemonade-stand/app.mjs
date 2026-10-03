@@ -3,7 +3,7 @@ import {Simulation,capacity,DAY_LENGTH} from './simulation.mjs';
 import {money,names} from './engine.mjs';
 import {locations,getLocation,unlocked} from './locations.mjs';
 import {recipePages,tasteLabels} from './recipes.mjs';
-const $=s=>document.querySelector(s),game=new Simulation(),ctx=$('#scene').getContext('2d');let last=0,shownPhase='',audio,muted=true,effects=[],view='home',homeTime=0,bookRecipes=[],bookPage=0;
+const $=s=>document.querySelector(s),game=new Simulation(),ctx=$('#scene').getContext('2d');let last=0,shownPhase='',audio,muted=true,effects=[],view='home',homeTime=0,bookRecipes=[],bookPage=0,tvChannel=0;
 // Only show hotspot focus outlines during keyboard navigation.
 document.addEventListener('pointerdown',()=>document.body.classList.add('pointer-input'),true);
 document.addEventListener('keydown',()=>document.body.classList.remove('pointer-input'),true);
@@ -25,6 +25,7 @@ function changeView(next){
  if(game.phase!=='setup')return;
  view=next;
  if(next==='map')renderMap();
+ if(next==='tv'){tvChannel=0;renderTelevision()}
  if(next==='market')renderMarket();
  if(next==='prepare')$('#setup-location').textContent=getLocation(game.location).name;
  if(next==='inventory'){
@@ -37,8 +38,43 @@ function changeView(next){
   bookRecipes=recipePages(quantities);bookPage=0;renderRecipePage();
  }
  syncView();
- $(next==='market'?'#market-home':next==='inventory'?'#close-inventory':next==='map'?'#close-map':next==='recipe'?'#close-recipe':next==='prepare'?'#price':'#map-sign').focus();
+ $(next==='tv'?'#tv-previous':next==='market'?'#market-home':next==='inventory'?'#close-inventory':next==='map'?'#close-map':next==='recipe'?'#close-recipe':next==='prepare'?'#price':'#map-sign').focus();
 }
+// Broadcasts read the existing simulation; watching TV never advances the day.
+function renderTelevision(){
+ const weatherChannel=tvChannel===0;
+ $('#tv-station-name').textContent=weatherChannel?'LEMON WEATHER':'TOWN NEWS';
+ $('#tv-channel-number').textContent=`CH ${tvChannel+1}`;
+ $('#tv-screen').classList.toggle('news-channel',!weatherChannel);
+ const program=$('#tv-program');program.replaceChildren();
+ const heading=document.createElement('h2');heading.textContent=weatherChannel?'Weather forecast':'Around town';program.append(heading);
+ if(weatherChannel){
+  const forecasts=document.createElement('div');forecasts.className='tv-forecasts';
+  for(const [label,conditions] of [['Today',game.conditions],['Tomorrow',game.tomorrow]]){
+   const card=document.createElement('article');card.className='tv-weather-card';
+   for(const [tag,className,text] of [['h3','',label],['span','tv-weather-icon',conditions.icon],['strong','tv-temperature',`${conditions.temperature}°F`],['span','',conditions.label]]){
+    const node=document.createElement(tag);node.className=className;node.textContent=text;card.append(node);
+   }
+   forecasts.append(card);
+  }
+  program.append(forecasts);$('#tv-ticker').textContent=`DAY ${game.state.day} · ${game.conditions.description}`;
+ }else{
+  const open=locations.filter(location=>unlocked(location,game.state.totalSold));
+  const next=locations.find(location=>!unlocked(location,game.state.totalSold));
+  const articles=[['OPEN TODAY',open.map(location=>location.name).join(' · ')],next?['NEXT OPENING',`${next.name} opens after ${next.required} cups sold. Town stands have sold ${game.state.totalSold} cups so far.`]:['TOWN UPDATE','Every neighborhood is now open for business.']];
+  for(const [label,text] of articles){const article=document.createElement('article');article.className='tv-news-story';const title=document.createElement('h3');title.textContent=label;const body=document.createElement('p');body.textContent=text;article.append(title,body);program.append(article)}
+  $('#tv-ticker').textContent=`DAY ${game.state.day} · LEMON LANE LOCAL REPORT`;
+ }
+ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+  program.getAnimations().forEach(animation=>animation.cancel());
+  program.animate([{opacity:0,filter:'brightness(2)'},{opacity:1,filter:'brightness(1)'}],{duration:220});
+ }
+}
+$('#show-tv').addEventListener('click',()=>changeView('tv'));
+$('#tv-previous').addEventListener('click',()=>{tvChannel=(tvChannel+1)%2;renderTelevision();tone(260,.06)});
+function closeTelevision(){changeView('home');$('#show-tv').focus()}
+$('#close-tv').addEventListener('click',closeTelevision);
+window.addEventListener('keydown',e=>{if(view==='tv'&&game.phase==='setup'){if(e.code==='Escape'){e.preventDefault();closeTelevision()}else if(e.code==='ArrowLeft'){e.preventDefault();tvChannel=(tvChannel+1)%2;renderTelevision()}else if(e.code==='Tab'){e.preventDefault();$(document.activeElement===$('#close-tv')?'#tv-previous':'#close-tv').focus()}}});
 function renderMap(){
  $('#map-progress').textContent=`${game.state.totalSold} cups sold`;
  $('#map-destinations').replaceChildren(...locations.map(location=>{
@@ -86,6 +122,7 @@ $('#close-recipe').addEventListener('click',()=>{changeView('home');$('#show-rec
 function syncView(){
  const atHome=game.phase==='setup';
  $('#overlay').hidden=game.phase==='playing'||(atHome&&view==='home');
+ $('#tv-view').hidden=!atHome||view!=='tv';$('#show-tv').hidden=!atHome||view!=='home';
  $('#market-view').hidden=!atHome||view!=='market';
  $('#inventory-view').hidden=!atHome||view!=='inventory';$('#show-inventory').hidden=!atHome||view!=='home';
  $('#map-view').hidden=!atHome||view!=='map';$('#map-sign').hidden=!atHome||view!=='home';$('#show-recipe').hidden=!atHome||view!=='home';positionHomeHotspots();
@@ -123,7 +160,7 @@ function positionHomeHotspots(){
  const width=Math.min(bounds.width,bounds.height*1.6),height=width/1.6;
  const left=bounds.left-parent.left-canvas.parentElement.clientLeft+canvas.parentElement.scrollLeft+(bounds.width-width)/2;
  const top=bounds.top-parent.top-canvas.parentElement.clientTop+canvas.parentElement.scrollTop+(bounds.height-height)/2;
- for(const [id,x,y,w,h] of [['map-sign',176,231,82,53],['show-recipe',332,32,68,54],['show-inventory',310,98,102,78]]){
+ for(const [id,x,y,w,h] of [['show-tv',87,87,44,44],['map-sign',176,231,82,53],['show-recipe',332,32,68,54],['show-inventory',310,98,102,78]]){
   Object.assign($('#'+id).style,{left:`${left+width*x/480}px`,top:`${top+height*y/300}px`,width:`${width*w/480}px`,height:`${height*h/300}px`});
  }
 }
