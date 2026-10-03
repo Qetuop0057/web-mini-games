@@ -1,5 +1,18 @@
 const town=new Image();town.src='assets/town.png';
-const sprites=Object.fromEntries(['down','side','up'].map(d=>{const i=new Image();i.src=`assets/walk-${d}.png`;return[d,i]}));
+const sprites=Object.fromEntries(['down','side','up'].map(d=>{
+ const image=new Image();
+ image.onload=()=>{
+  // Extracted GIF frames have a solid RGB(104,169,245) backdrop.
+  // Key only that exact palette color once on load, preserving every animation pixel.
+  const canvas=typeof OffscreenCanvas!=='undefined'?new OffscreenCanvas(image.width,image.height):document.createElement('canvas');
+  canvas.width=image.width;canvas.height=image.height;
+  const context=canvas.getContext('2d');context.drawImage(image,0,0);
+  const pixels=context.getImageData(0,0,canvas.width,canvas.height);
+  for(let p=0;p<pixels.data.length;p+=4)if(pixels.data[p]===104&&pixels.data[p+1]===169&&pixels.data[p+2]===245)pixels.data[p+3]=0;
+  context.putImageData(pixels,0,0);image.transparentSprite=canvas;
+ };
+ image.src=`assets/walk-${d}.png`;return[d,image];
+}));
 export function scene(ctx,time,people=[],price=150,serveProgress=0,conditions=null,location='lemon-lane'){
  ctx.save();ctx.scale(2,2);ctx.imageSmoothingEnabled=false;
  const rect=(x,y,w,h,c)=>{ctx.fillStyle=c;ctx.fillRect(x,y,w,h)};
@@ -44,7 +57,7 @@ export function scene(ctx,time,people=[],price=150,serveProgress=0,conditions=nu
 }
 export function person(ctx,p,time){const d=p.dir||'down',im=sprites[d],w=d==='side'?10:12,h=15,frame=p.moving?Math.floor(time*8)%4:0;
  ctx.fillStyle='#45634144';ctx.beginPath();ctx.ellipse(p.x,p.y-1,10,3,0,0,Math.PI*2);ctx.fill();
- if(im.complete&&im.naturalWidth){ctx.save();ctx.translate(Math.round(p.x),Math.round(p.y));if(p.flip)ctx.scale(-1,1);ctx.filter=`hue-rotate(${p.tint||0}deg)`;ctx.drawImage(im,frame*w,0,w,h,-w, -h*2,w*2,h*2);ctx.restore()}
+ if(im.complete&&im.naturalWidth){ctx.save();ctx.translate(Math.round(p.x),Math.round(p.y));if(p.flip)ctx.scale(-1,1);ctx.filter=`hue-rotate(${p.tint||0}deg)`;ctx.drawImage(im.transparentSprite||im,frame*w,0,w,h,-w, -h*2,w*2,h*2);ctx.restore()}
  if(p.umbrella)umbrella(ctx,p,time);
  if(p.bubble){ctx.font='bold 10px monospace';const bx=p.x+(p.umbrella?28:14),by=p.y-46,width=p.feedback?Math.max(66,ctx.measureText(p.feedback).width+30):28;
   ctx.fillStyle='#fff9e8';ctx.fillRect(bx,by,width,19);ctx.fillRect(bx-4,by+13,4,4);
