@@ -1,7 +1,8 @@
 import {scene,homeScene} from './art.mjs';
 import {Simulation,capacity,DAY_LENGTH} from './simulation.mjs';
 import {money,names} from './engine.mjs';
-const $=s=>document.querySelector(s),game=new Simulation(),ctx=$('#scene').getContext('2d');let last=0,shownPhase='',audio,muted=true,effects=[],view='home',homeTime=0;
+import {recipePages,tasteLabels} from './recipes.mjs';
+const $=s=>document.querySelector(s),game=new Simulation(),ctx=$('#scene').getContext('2d');let last=0,shownPhase='',audio,muted=true,effects=[],view='home',homeTime=0,bookRecipes=[],bookPage=0;
 function tone(freq,duration=.12){if(muted)return;try{audio??=new (window.AudioContext||window.webkitAudioContext)();audio.resume();const o=audio.createOscillator(),g=audio.createGain();o.type='triangle';o.frequency.value=freq;g.gain.setValueAtTime(.05,audio.currentTime);g.gain.exponentialRampToValueAtTime(.001,audio.currentTime+duration);o.connect(g).connect(audio.destination);o.start();o.stop(audio.currentTime+duration)}catch{/* Sound is optional; game remains playable. */}}
 function recipe(){return ['lemons','sugar','ice'].map(id=>Number($('#'+id).value))}function order(){return [...document.querySelectorAll('.supply input')].map(el=>Number(el.value))}
 function refreshCost(){const cost=order().reduce((s,n,i)=>s+n*game.conditions.prices[i],0);$('#cost').textContent=money(cost);$('#error').textContent=cost>game.state.cash?'Not enough cash':''}
@@ -21,12 +22,29 @@ function changeView(next){
  view=next;
  if(next==='recipe'){
   const quantities=recipe().map((n,i)=>Number.isInteger(n)&&n>=1&&n<=3?n:game.recipe[i]);
-  $('#recipe-details').replaceChildren(...[['Cups',1],['Lemons',quantities[0]],['Sugar',quantities[1]],['Ice',quantities[2]]].map(([label,value])=>{const div=document.createElement('div');div.textContent=label+' / cup';const strong=document.createElement('strong');strong.textContent=value;div.append(strong);return div}));
-  const balance=quantities[1]-quantities[0];$('#recipe-taste').textContent=`${balance<0?'Sour':balance>0?'Sweet':'Balanced'} · ${['Light ice','Regular ice','Ice cold'][quantities[2]-1]}`;
+  bookRecipes=recipePages(quantities);bookPage=0;renderRecipePage();
  }
  syncView();
  $(next==='map'?'#close-map':next==='recipe'?'#close-recipe':next==='prepare'?'#price':'#go-stand').focus();
 }
+function renderRecipePage(direction){
+ const page=bookRecipes[bookPage],labels=tasteLabels(page.quantities);
+ $('#recipe-name').textContent=page.name;$('#recipe-flavor').textContent=labels.flavor;$('#recipe-cooling').textContent=labels.ice;
+ $('#recipe-details').replaceChildren(...[['Cups',1],['Lemons',page.quantities[0]],['Sugar',page.quantities[1]],['Ice',page.quantities[2]]].flatMap(([name,count])=>{const term=document.createElement('dt'),value=document.createElement('dd');term.textContent=name;value.textContent=count;return [term,value]}));
+ function options(selector,values,active){$(selector).replaceChildren(...values.map(label=>{const span=document.createElement('span');span.textContent=label;span.className=label===active?'selected':'';return span}))}
+ options('#flavor-options',['Very sour','Sour','Balanced','Sweet','Very sweet'],labels.flavor);
+ options('#ice-options',['Light ice','Regular ice','Ice cold'],labels.ice);
+ $('#recipe-page-number').textContent=`${bookPage+1} / ${bookRecipes.length}`;
+ $('#recipe-prev').disabled=bookPage===0;$('#recipe-next').disabled=bookPage===bookRecipes.length-1;
+ if(direction&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+  $('#book-page').getAnimations().forEach(animation=>animation.cancel());
+  $('#book-page').animate([{opacity:.3,transform:`translateX(${direction==='next'?12:-12}px)`},{opacity:1,transform:'translateX(0)'}],{duration:220,easing:'ease-out'});
+ }
+}
+function turnRecipe(direction){if(view!=='recipe'||game.phase!=='setup')return;const next=bookPage+(direction==='next'?1:-1);if(next<0||next>=bookRecipes.length)return;bookPage=next;renderRecipePage(direction);tone(390,.07)}
+$('#recipe-prev').addEventListener('click',()=>turnRecipe('previous'));
+$('#recipe-next').addEventListener('click',()=>turnRecipe('next'));
+window.addEventListener('keydown',e=>{if(view==='recipe'&&game.phase==='setup'){if(e.code==='ArrowLeft'||e.code==='ArrowRight'){e.preventDefault();turnRecipe(e.code==='ArrowRight'?'next':'previous')}else if(e.code==='Escape'){changeView('home');$('#show-recipe').focus()}}});
 $('#map-sign').addEventListener('click',()=>changeView('map'));
 $('#close-map').addEventListener('click',()=>{changeView('home');$('#map-sign').focus()});
 $('#go-stand').addEventListener('click',()=>changeView('prepare'));
