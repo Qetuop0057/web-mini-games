@@ -19,6 +19,6 @@ export default async function GamePage({ params }: { params: Promise<{ slug: str
     </section><aside className="launch-panel"><span className="launch-icon" aria-hidden="true">{game.icon}</span>
       {game.playUrl ? <a className="button start-game" href={game.playUrl}>Start game</a> : <h2>Coming soon</h2>}
     </aside></div>
-    <section className="preview-section"><h2>Preview</h2>{game.previews.length > 0 ? <div className="preview-grid">{game.previews.map(preview => <figure key={preview.src}><a href={preview.src} target="_blank" rel="noopener noreferrer" aria-label={`View ${preview.alt}`}><Image src={preview.src} alt={preview.alt} width={1100} height={1000} unoptimized className="preview-image" /></a></figure>)}</div> : <div className="preview-empty">Screenshots will be added when this game is ready.</div>}</section>
+    <section className="preview-section"><h2>Preview</h2>{game.previews.length > 0 ? <div className="preview-grid">{game.previews.map(preview => <figure key={preview.src}><a href={preview.src} target="_blank" rel="noopener noreferrer" aria-label={`View ${preview.alt}`}><Image src={preview.src} alt={preview.alt} width={960} height={600} unoptimized className="preview-image" /></a></figure>)}</div> : <div className="preview-empty">Screenshots will be added when this game is ready.</div>}{game.previews.length > 0 && <p className="back-link"><a href="/previews/art-credits.txt" target="_blank" rel="noopener noreferrer">Art credits</a></p>}</section>
   </div>;
 }

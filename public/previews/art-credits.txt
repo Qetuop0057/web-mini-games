@@ -1,0 +1,10 @@
+Market art: LPC Bazaar Rework, version 1.0-1.
+Created by Daniel Eddeland (daneeklu), Zachariah Husiar (Zabin), Tuomo Untinen (Reemax), Hyptosis and Jetrel; reworked by AntumDeluge.
+Source: https://opengameart.org/content/lpc-bazaar-rework
+Licensed under Creative Commons Attribution-ShareAlike 3.0 or later.
+https://creativecommons.org/licenses/by-sa/3.0/
+Full license: market-license.txt. Original asset sources: market-sources.md.
+The original PNG files are unmodified. Their arrangement, scaling and crops in the market scene, and the resulting market background artwork, are shared under CC BY-SA 3.0.
+Terrain: Kenney Tiny Town, CC0; https://kenney.nl/assets/tiny-town
+Characters: Shepardskin Human RPG Character, CC0; https://opengameart.org/content/human-rpg-character
+These visual-art licenses do not change the license of the game code.
