@@ -1,3 +1,4 @@
+import {openStand,fillCup,tick as playTicks} from './test-helpers.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {preferences,evaluateTaste} from './taste.mjs';
@@ -29,9 +30,9 @@ test('tips round to whole cents',()=>{
 const tick=(g,seconds)=>{for(let i=0;i<seconds*20;i++)g.tick(.05)};
 test('tips are posted once with sale, shown separately and included in cash and profit',()=>{
  for(const [recipe,expectedTip] of [[[1,2,2],25],[[1,1,2],13],[[3,1,1],0]]){
-  const g=new Simulation(()=>.5);g.open([10,20,20,20],recipe,125);tick(g,8);
+  const g=new Simulation(()=>.5);openStand(g,[10,20,20,20],125);tick(g,8);
   assert.equal(g.queue[0]?.state,'waiting');g.queue[0].preference=preference('sweet');const cash=g.state.cash;
-  g.serve();assert.equal(g.serve(),false);tick(g,.5);assert.equal(g.stats.tips,0);assert.equal(g.state.cash,cash);
+  fillCup(g,recipe);g.serve();assert.equal(g.serve(),false);tick(g,.5);assert.equal(g.stats.tips,0);assert.equal(g.state.cash,cash);
   tick(g,.8);assert.equal(g.stats.sold,1);assert.equal(g.stats.revenue,125);assert.equal(g.stats.tips,expectedTip);
   assert.equal(g.state.cash,cash+125+expectedTip);assert.equal(g.stats.profit,125+expectedTip-g.stats.cost);
   assert.equal(g.events[0].tip,expectedTip);assert.equal(g.events[0].price,125);
@@ -39,7 +40,7 @@ test('tips are posted once with sale, shown separately and included in cash and 
  }
 });
 test('rejections and impatience never earn tips; daily totals reset while cash carries over',()=>{
- const g=new Simulation(()=>.5);g.open([10,20,20,20],[1,2,2],125);tick(g,8);g.queue[0].preference=preference('sweet');g.serve();tick(g,1.3);tick(g,140);
+ const g=new Simulation(()=>.5);openStand(g,[10,20,20,20],125);tick(g,8);g.queue[0].preference=preference('sweet');fillCup(g,[1,2,2]);g.serve();tick(g,1.3);tick(g,140);
  assert.equal(g.phase,'summary');assert.ok(g.stats.impatient>0);assert.equal(g.stats.tips,25);const cash=g.state.cash;
- g.next();assert.equal(g.state.cash,cash);g.open([0,0,0,0],[1,2,2],500);assert.equal(g.stats.tips,0);tick(g,140);assert.equal(g.stats.tips,0);assert.equal(g.stats.sold,0);
+ g.next();assert.equal(g.state.cash,cash);openStand(g,[0,0,0,0],500);assert.equal(g.stats.tips,0);tick(g,140);assert.equal(g.stats.tips,0);assert.equal(g.stats.sold,0);
 });

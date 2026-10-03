@@ -1,3 +1,4 @@
+import {openStand,fillCup,tick as playTicks} from './test-helpers.mjs';
 import test from 'node:test';import assert from 'node:assert/strict';
 import {generateWeather,weatherTypes,arrivalInterval,customerBudget,coolPreferenceChance} from './weather.mjs';
 import {Simulation} from './simulation.mjs';
@@ -17,7 +18,7 @@ test('weather and temperature both affect arrivals and budgets',()=>{
 });
 test('forecasts stay fixed through setup, gameplay and next-day transition',()=>{
  let value=.2;const g=new Simulation(()=>value);const today={...g.conditions},tomorrow={...g.tomorrow};value=.95;
- g.open([10,10,10,10],[1,1,1],100);for(let i=0;i<2800;i++)g.tick(.05);
+ openStand(g,[10,10,10,10],100);for(let i=0;i<2800;i++)g.tick(.05);
  assert.equal(g.phase,'summary');assert.deepEqual(g.conditions,today);assert.deepEqual(g.tomorrow,tomorrow);
  g.next();assert.deepEqual(g.conditions,tomorrow);assert.equal(g.tomorrow.id,'heatwave');assert.equal(g.state.day,2);
 });
@@ -30,8 +31,8 @@ test('hot weather increases cool preferences, rain decreases them; taste targets
 });
 test('rain and heatwave days still finish with exact money and no overselling',()=>{
  for(const type of [weatherTypes[2],weatherTypes[3]]){
-  const g=new Simulation(()=>.5);g.conditions={...type,temperature:type.max,prices:[10,20,10,5]};g.open([6,6,6,6],[1,1,1],100);
-  for(let i=0;i<2800;i++){g.serve();g.tick(.05)}
+  const g=new Simulation(()=>.5);g.conditions={...type,temperature:type.max,prices:[10,20,10,5]};openStand(g,[6,6,6,6],100);
+  for(let i=0;i<2800;i++){fillCup(g);g.serve();g.tick(.05)}
   assert.equal(g.phase,'summary');assert.ok(g.stats.sold<=6);assert.equal(g.state.cash,2000-g.stats.cost+g.stats.revenue+g.stats.tips);assert.ok(g.state.inventory.every(n=>n>=0));
  }
 });

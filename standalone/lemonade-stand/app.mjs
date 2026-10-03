@@ -1,29 +1,38 @@
 import {scene,homeScene} from './art.mjs';
+import {ingredientIcon,mixingScene} from './mixing-art.mjs';
 import {Simulation,capacity,DAY_LENGTH} from './simulation.mjs';
 import {money,names} from './engine.mjs';
 import {locations,getLocation,unlocked} from './locations.mjs';
 import {recipePages,tasteLabels} from './recipes.mjs';
-const $=s=>document.querySelector(s),game=new Simulation(),ctx=$('#scene').getContext('2d');let last=0,shownPhase='',audio,muted=true,effects=[],view='home',homeTime=0,bookRecipes=[],bookPage=0,tvChannel=0;
+const $=s=>document.querySelector(s),game=new Simulation(),ctx=$('#scene').getContext('2d');let last=0,shownPhase='',audio,muted=true,effects=[],view='home',homeTime=0,bookRecipes=[],bookPage=0,tvChannel=0,drops=[],delivery=null;
 // Only show hotspot focus outlines during keyboard navigation.
 document.addEventListener('pointerdown',()=>document.body.classList.add('pointer-input'),true);
 document.addEventListener('keydown',()=>document.body.classList.remove('pointer-input'),true);
 function tone(freq,duration=.12){if(muted)return;try{audio??=new (window.AudioContext||window.webkitAudioContext)();audio.resume();const o=audio.createOscillator(),g=audio.createGain();o.type='triangle';o.frequency.value=freq;g.gain.setValueAtTime(.05,audio.currentTime);g.gain.exponentialRampToValueAtTime(.001,audio.currentTime+duration);o.connect(g).connect(audio.destination);o.start();o.stop(audio.currentTime+duration)}catch{/* Sound is optional; game remains playable. */}}
-function recipe(){return ['lemons','sugar','ice'].map(id=>Number($('#'+id).value))}
-function refreshCapacity(){
- $('#stand-capacity').textContent=`Cups available: ${capacity(game.state.inventory,recipe())}`;
+function standStock(){
+ $('#stand-stock').replaceChildren(...names.map((name,i)=>{const item=document.createElement('div');item.textContent=name;const count=document.createElement('strong');count.textContent=game.state.inventory[i];item.append(count);return item}));
+ $('#stand-capacity').textContent=`Up to ${capacity(game.state.inventory)} cups · mixed at the counter`;
  $('#error').textContent='';
 }
-function standStock(){
- $('#stand-stock').replaceChildren(...names.map((name,i)=>{const item=document.createElement('div');item.textContent=name;const count=document.createElement('strong');count.textContent=game.state.inventory[i];item.append(count);return item}));refreshCapacity();
-}
-['lemons','sugar','ice'].forEach(id=>$('#'+id).addEventListener('input',refreshCapacity));
 function setup(){
  $('#setup-day').textContent=game.state.day;$('#forecast').textContent=`Today: ${game.conditions.icon} ${game.conditions.label} · ${game.conditions.temperature}°F`;$('#tomorrow').textContent=`Tomorrow: ${game.tomorrow.icon} ${game.tomorrow.label} · ${game.tomorrow.temperature}°F`;$('#forecast').title=game.conditions.description;
  standStock();
 }
-$('#setup').addEventListener('submit',e=>{e.preventDefault();try{game.open([0,0,0,0],recipe(),Math.round(Number($('#price').value)*100));effects=[];view='stand';$('#scene').focus();tone(440)}catch(error){$('#error').textContent=error.message}});
-function serve(){if(game.serve())tone(330)}$('#serve').addEventListener('click',serve);$('#scene').addEventListener('pointerdown',serve);
-window.addEventListener('keydown',e=>{if(e.code==='Space'&&!/INPUT|BUTTON|TEXTAREA/.test(e.target.tagName)){e.preventDefault();if(!e.repeat)serve()}if(e.code==='Escape'&&game.phase==='playing')pause()});
+$('#setup').addEventListener('submit',e=>{e.preventDefault();try{game.open(Math.round(Number($('#price').value)*100));effects=[];drops=[];delivery=null;view='stand';$('#scene').focus();tone(440)}catch(error){$('#error').textContent=error.message}});
+function serve(){if(game.serve())tone(330)}$('#serve').addEventListener('click',serve);
+const ingredientIds=['lemon','sugar','ice'];
+for(const [index,id] of ingredientIds.entries()){
+ ingredientIcon($('#'+id+'-icon').getContext('2d'),index,0,0,2);
+ $('#add-'+id).addEventListener('click',()=>addIngredient(index));
+}
+function addIngredient(index){if(game.addIngredient(index)){drops.push({index,age:0});tone(380+index*100,.07)}}
+$('#discard').addEventListener('click',()=>{if(game.discard()){drops=[];tone(180,.1)}});
+window.addEventListener('keydown',e=>{
+ if(game.phase!=='playing'||/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))return;
+ if(['Digit1','Digit2','Digit3'].includes(e.code)){e.preventDefault();if(!e.repeat)addIngredient(Number(e.code.slice(-1))-1)}
+ if(e.code==='Space'&&e.target.tagName!=='BUTTON'){e.preventDefault();if(!e.repeat)serve()}
+ if(e.code==='Escape')pause();
+});
 function pause(){if(game.phase!=='playing')return;game.paused=!game.paused;$('#pause').textContent=game.paused?'Resume':'Pause';tone(220)}$('#pause').addEventListener('click',pause);
 document.addEventListener('visibilitychange',()=>{last=0;if(document.hidden&&game.phase==='playing'){game.paused=true;$('#pause').textContent='Resume'}});
 $('#sound').addEventListener('click',()=>{muted=!muted;$('#sound').textContent=muted?'Sound off':'Sound on';$('#sound').setAttribute('aria-pressed',String(!muted));$('#sound').setAttribute('aria-label',muted?'Enable sound':'Mute sound');tone(523)});
@@ -37,12 +46,10 @@ function changeView(next){
  if(next==='prepare'){$('#setup-location').textContent=getLocation(game.location).name;standStock()}
  if(next==='inventory'){
   $('#inventory-details').replaceChildren(...names.map((name,i)=>{const div=document.createElement('div');div.textContent=name;const strong=document.createElement('strong');strong.textContent=game.state.inventory[i];div.append(strong);return div}));
-  const draft=recipe().map((n,i)=>Number.isInteger(n)&&n>=1&&n<=3?n:game.recipe[i]);
-  $('#inventory-capacity').textContent=capacity(game.state.inventory,draft);
+  $('#inventory-capacity').textContent=capacity(game.state.inventory);
  }
  if(next==='recipe'){
-  const quantities=recipe().map((n,i)=>Number.isInteger(n)&&n>=1&&n<=3?n:game.recipe[i]);
-  bookRecipes=recipePages(quantities);bookPage=0;renderRecipePage();
+  bookRecipes=recipePages();bookPage=0;renderRecipePage();
  }
  syncView();
  $(next==='tv'?'#tv-previous':next==='market'?'#market-home':next==='inventory'?'#close-inventory':next==='map'?'#close-map':next==='recipe'?'#close-recipe':next==='prepare'?'#price':'#map-sign').focus();
@@ -134,29 +141,43 @@ function syncView(){
  $('#inventory-view').hidden=!atHome||view!=='inventory';$('#show-inventory').hidden=!atHome||view!=='home';
  $('#map-view').hidden=!atHome||view!=='map';$('#map-sign').hidden=!atHome||view!=='home';$('#show-recipe').hidden=!atHome||view!=='home';positionHomeHotspots();
  $('#setup').hidden=!atHome||view!=='prepare';$('#recipe-view').hidden=!atHome||view!=='recipe';$('#summary').hidden=game.phase!=='summary';
- $('#home-actions').hidden=!atHome;$('#play-actions').hidden=game.phase!=='playing';$('#clock').hidden=game.phase!=='playing';$('#banner').hidden=atHome;
+ $('#home-actions').hidden=!atHome;$('#play-actions').hidden=game.phase!=='playing';$('#clock').hidden=game.phase!=='playing';$('#banner').hidden=game.phase!=='summary';
+ $('#scene').parentElement.classList.toggle('is-playing',game.phase==='playing');
  $('#scene').setAttribute('aria-label',atHome?'Your home, with a lemonade stand in the yard to the right':'Street scene with a lemonade stand and customers');
  $('#home-forecast').textContent=`Tomorrow: ${game.tomorrow.icon} ${game.tomorrow.label} · ${game.tomorrow.temperature}°F`;
 }
 function sync(){
- $('#location-name').textContent=game.phase==='setup'?'Home':getLocation(game.location).name;$('#cash').textContent=money(game.state.cash);$('#cups').textContent=capacity(game.state.inventory,game.recipe);$('#weather').textContent=`${game.conditions.icon} ${game.conditions.label} · ${game.conditions.temperature}°F`;
+ $('#location-name').textContent=game.phase==='setup'?'Home':getLocation(game.location).name;$('#cash').textContent=money(game.state.cash);$('#cups').textContent=game.state.inventory[0];$('#weather').textContent=`${game.conditions.icon} ${game.conditions.label} · ${game.conditions.temperature}°F`;
  const seconds=Math.ceil(game.phase==='playing'?game.remaining:DAY_LENGTH);$('#clock').textContent=`${Math.floor(seconds/60).toString().padStart(2,'0')}:${(seconds%60).toString().padStart(2,'0')}`;
  $('#banner').textContent=game.phase==='setup'?'Home':game.paused?'Paused':game.message;
- $('#serve').disabled=game.phase!=='playing'||game.paused||!!game.making||game.queue[0]?.state!=='waiting'||!capacity(game.state.inventory,game.recipe);
- $('#pause').disabled=game.phase!=='playing';
- $('#progress').textContent=game.making?`Mixing… ${Math.min(100,Math.round(game.making.elapsed/game.making.duration*100))}%`:game.paused?'Press Resume to continue':'Click the stand or press Space';
+ syncCounter();
  if(shownPhase!==game.phase){shownPhase=game.phase;$('#pause').textContent='Pause';if(game.phase==='setup')view='home';syncView();
-  if(game.phase==='setup'){setup();['lemons','sugar','ice'].forEach((id,i)=>$('#'+id).value=game.recipe[i])}
+  if(game.phase==='setup')setup();
   if(game.phase==='summary'){
-   const s=game.stats;$('#results').replaceChildren(...[['Cups sold',s.sold],['Sales revenue',money(s.revenue)],['Tips',money(s.tips)],['Supplies',money(s.cost)],['Net cash change',money(s.profit)],['Price rejected',s.rejected],['Walked away',s.impatient+s.missed]].map(([label,value])=>{const div=document.createElement('div');div.textContent=label;const strong=document.createElement('strong');strong.textContent=value;div.append(strong);return div}));tone(659,.3);$('#next').focus();
+   const s=game.stats;$('#results').replaceChildren(...[['Cups sold',s.sold],['Sales revenue',money(s.revenue)],['Tips',money(s.tips)],['Cups discarded',s.wasted],['Supplies',money(s.cost)],['Net cash change',money(s.profit)],['Price rejected',s.rejected],['Walked away',s.impatient+s.missed]].map(([label,value])=>{const div=document.createElement('div');div.textContent=label;const strong=document.createElement('strong');strong.textContent=value;div.append(strong);return div}));tone(659,.3);$('#next').focus();
   }
  }
 }
+function syncCounter(){
+ if(game.phase!=='playing')return;
+ const customer=game.activeCustomer(),amounts=game.drink?.ingredients||[0,0,0];
+ $('#order-request').textContent=customer?{sour:'Something sour, please!',sweet:'Sweet lemonade, please!',cool:'Make it ice cold!'}[customer.preference.id]:'Waiting for a customer';
+ $('#customer-patience').hidden=!customer;$('#customer-patience').value=customer?.patience||0;$('#customer-patience').max=customer?.maxPatience||1;
+ for(const [i,id] of ingredientIds.entries()){
+  $('#add-'+id).disabled=!game.canAdd(i);$('#'+id+'-stock').textContent=game.state.inventory[i+1]+' left';$('#'+id+'-count').textContent=amounts[i]+' / 3';
+ }
+ $('#mixing-stage').setAttribute('aria-label',game.drink?`Current cup: ${amounts[0]} lemon, ${amounts[1]} sugar, ${amounts[2]} ice`:'No cup prepared');
+ $('#cup-stock').textContent=game.state.inventory[0]+' cups left';
+ $('#serve').disabled=!game.canServe();$('#discard').disabled=!game.drink||game.paused||!!game.making;$('#pause').disabled=false;
+ $('#serve').textContent=game.making?`Mixing ${Math.min(100,Math.round(game.making.elapsed/game.making.duration*100))}%`:'Mix & serve';
+ const status=game.paused?'Paused':game.notice>0?game.message:game.canServe()?'Ready to serve':game.drink?'Add lemon, sugar and ice':game.message;
+ if($('#progress').textContent!==status)$('#progress').textContent=status;
+}
 function frame(timestamp){const dt=last?Math.min((timestamp-last)/1000,.1):0;last=timestamp;game.tick(dt);
- for(const event of game.events||[]){effects.push({...event,life:1.3});tone(780,.16)}if(game.events)game.events.length=0;
- if(!game.paused)effects=effects.map(e=>({...e,life:e.life-dt})).filter(e=>e.life>0);
+ for(const event of game.events||[]){effects.push({...event,life:1.3});delivery={ingredients:event.ingredients,age:0};tone(780,.16)}if(game.events)game.events.length=0;
+ if(!game.paused){effects=effects.map(e=>({...e,life:e.life-dt})).filter(e=>e.life>0);drops=drops.map(d=>({...d,age:d.age+dt})).filter(d=>d.age<.4);if(delivery){delivery.age+=dt;if(delivery.age>=.7)delivery=null}}
  if(game.phase==='setup'){homeTime+=dt;homeScene(ctx,homeTime,game.conditions,game.state.day)}else scene(ctx,game.time,game.people,game.price,game.making?game.making.elapsed/game.making.duration:0,game.conditions,game.location);
- ctx.save();ctx.scale(2,2);ctx.font='bold 13px monospace';ctx.textAlign='center';for(const e of effects){ctx.globalAlpha=Math.min(1,e.life*2);ctx.fillStyle='#fff6c9';ctx.fillText('+'+money(e.price),e.x,e.y-50-(1.3-e.life)*24);if(e.tip){ctx.fillStyle='#ffe077';ctx.fillText('+'+money(e.tip)+' tip',e.x,e.y-35-(1.3-e.life)*24)}}ctx.restore();sync();requestAnimationFrame(frame)
+ ctx.save();ctx.scale(2,2);ctx.font='bold 13px monospace';ctx.textAlign='center';for(const e of effects){ctx.globalAlpha=Math.min(1,e.life*2);ctx.fillStyle='#fff6c9';ctx.fillText('+'+money(e.price),e.x,e.y-50-(1.3-e.life)*24);if(e.tip){ctx.fillStyle='#ffe077';ctx.fillText('+'+money(e.tip)+' tip',e.x,e.y-35-(1.3-e.life)*24)}}ctx.restore();if(game.phase==='playing')mixingScene($('#mixing-stage').getContext('2d'),game.drink,game.making,game.time,drops,delivery);sync();requestAnimationFrame(frame)
 }
 requestAnimationFrame(frame);
 

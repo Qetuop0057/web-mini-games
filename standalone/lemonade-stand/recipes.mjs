@@ -1,7 +1,7 @@
-// One recipe per spread. The first spread preserves the player's current draft.
-export function recipePages(current) {
+// Reference recipes only: every actual drink is mixed at the counter.
+export function recipePages() {
  return [
-  {name:'Your recipe',quantities:[...current]},
+  {name:'Balanced lemonade',quantities:[1,1,2]},
   {name:'Sour lemonade',quantities:[2,1,2]},
   {name:'Sweet lemonade',quantities:[1,2,2]},
   {name:'Ice-cold lemonade',quantities:[2,2,3]},
