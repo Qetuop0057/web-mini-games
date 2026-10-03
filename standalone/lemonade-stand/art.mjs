@@ -63,14 +63,15 @@ function umbrella(ctx,p,time){
  rect(-7,0,14,8,light);rect(-1,-8,2,3,'#495449');rect(-17,9,7,2,light);rect(-4,9,8,2,light);rect(10,9,7,2,light);
 }
 
-export function homeScene(ctx,time,conditions){
+export function homeScene(ctx,time,conditions,day=1){
  ctx.save();ctx.scale(2,2);ctx.imageSmoothingEnabled=false;
  const rect=(x,y,w,h,c)=>{ctx.fillStyle=c;ctx.fillRect(x,y,w,h)};
  const tile=(n,x,y,size=24)=>{if(town.complete&&town.naturalWidth)ctx.drawImage(town,(n%12)*16,Math.floor(n/12)*16,16,16,x,y,size,size)};
  rect(0,0,480,300,'#87bc73');for(let y=0;y<300;y+=24)for(let x=0;x<480;x+=24)tile((x+y)%72===0?1:0,x,y);
  for(const [x,y] of [[20,36],[430,26],[25,228],[416,263]]){tile(5,x,y,38);tile(2,x+28,y+27)}
  // Front path joins the player's house to the enclosed yard on its right.
- rect(131,198,37,102,'#e4bf92');rect(164,225,198,25,'#e4bf92');
+ rect(131,157,37,143,'#e4bf92');rect(164,183,198,25,'#e4bf92');rect(0,260,480,26,'#e4bf92');
+ ctx.save();ctx.translate(0,-42);
  rect(72,203,174,13,'#659257');rect(77,112,164,95,'#ead9a6');
  rect(77,195,164,12,'#b59b76');rect(77,112,164,7,'#a68763');
  // Stepped terracotta roof and a chimney.
@@ -94,6 +95,13 @@ export function homeScene(ctx,time,conditions){
  rect(320,193,86,5,'#986842');rect(324,198,78,18,'#c99459');rect(337,201,52,11,'#fff2cf');
  ctx.fillStyle='#725637';ctx.font='bold 8px monospace';ctx.textAlign='center';ctx.fillText('LEMONADE',363,210);
  rect(419,208,17,17,'#a2764b');rect(422,212,11,2,'#755339');rect(422,218,11,2,'#755339');
+ ctx.restore();
+ // A day marker stands to the left of the house, away from its doorway.
+ rect(32,125,6,43,'#765539');rect(14,104,46,27,'#72543a');rect(17,107,40,21,'#d3a970');
+ ctx.font='bold 11px monospace';ctx.textAlign='center';ctx.fillStyle='#493d2b';ctx.fillText(`DAY ${day}`,37,122);
+ // Wooden direction sign at the lower crossroads. Its native hotspot is in app.mjs.
+ rect(213,252,6,33,'#765539');rect(179,235,68,23,'#765539');rect(182,238,63,17,'#d3a970');
+ ctx.fillStyle='#493d2b';ctx.font='bold 12px monospace';ctx.fillText('MAP →',214,251);
  if(conditions.id==='rainy'||conditions.id==='cloudy')rect(0,0,480,300,conditions.id==='rainy'?'#344a6e38':'#67778a1c');
  if(conditions.id==='rainy'){
   ctx.strokeStyle='#d5e5ed99';ctx.lineWidth=1;

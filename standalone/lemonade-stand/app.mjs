@@ -25,8 +25,10 @@ function changeView(next){
   const balance=quantities[1]-quantities[0];$('#recipe-taste').textContent=`${balance<0?'Sour':balance>0?'Sweet':'Balanced'} · ${['Light ice','Regular ice','Ice cold'][quantities[2]-1]}`;
  }
  syncView();
- $(next==='recipe'?'#close-recipe':next==='prepare'?'#price':'#go-stand').focus();
+ $(next==='map'?'#close-map':next==='recipe'?'#close-recipe':next==='prepare'?'#price':'#go-stand').focus();
 }
+$('#map-sign').addEventListener('click',()=>changeView('map'));
+$('#close-map').addEventListener('click',()=>{changeView('home');$('#map-sign').focus()});
 $('#go-stand').addEventListener('click',()=>changeView('prepare'));
 $('#show-recipe').addEventListener('click',()=>changeView('recipe'));
 $('#back-home').addEventListener('click',()=>changeView('home'));
@@ -34,13 +36,14 @@ $('#close-recipe').addEventListener('click',()=>changeView('home'));
 function syncView(){
  const atHome=game.phase==='setup';
  $('#overlay').hidden=game.phase==='playing'||(atHome&&view==='home');
+ $('#map-view').hidden=!atHome||view!=='map';$('#map-sign').hidden=!atHome||view!=='home';positionMapSign();
  $('#setup').hidden=!atHome||view!=='prepare';$('#recipe-view').hidden=!atHome||view!=='recipe';$('#summary').hidden=game.phase!=='summary';
  $('#home-actions').hidden=!atHome;$('#play-actions').hidden=game.phase!=='playing';$('#clock').hidden=game.phase!=='playing';$('#banner').hidden=atHome&&view!=='home';
  $('#scene').setAttribute('aria-label',atHome?'Your home, with a lemonade stand in the yard to the right':'Street scene with a lemonade stand and customers');
  $('#home-forecast').textContent=`Tomorrow: ${game.tomorrow.icon} ${game.tomorrow.label} · ${game.tomorrow.temperature}°F`;
 }
 function sync(){
- $('#day').textContent=game.state.day;$('#cash').textContent=money(game.state.cash);$('#cups').textContent=capacity(game.state.inventory,game.recipe);$('#weather').textContent=`${game.conditions.icon} ${game.conditions.label} · ${game.conditions.temperature}°F`;
+ $('#cash').textContent=money(game.state.cash);$('#cups').textContent=capacity(game.state.inventory,game.recipe);$('#weather').textContent=`${game.conditions.icon} ${game.conditions.label} · ${game.conditions.temperature}°F`;
  const seconds=Math.ceil(game.phase==='playing'?game.remaining:DAY_LENGTH);$('#clock').textContent=`${Math.floor(seconds/60).toString().padStart(2,'0')}:${(seconds%60).toString().padStart(2,'0')}`;
  $('#banner').textContent=game.phase==='setup'?'Home':game.paused?'Paused':game.message;
  $('#serve').disabled=game.phase!=='playing'||game.paused||!!game.making||game.queue[0]?.state!=='waiting'||!capacity(game.state.inventory,game.recipe);
@@ -56,7 +59,18 @@ function sync(){
 function frame(timestamp){const dt=last?Math.min((timestamp-last)/1000,.1):0;last=timestamp;game.tick(dt);
  for(const event of game.events||[]){effects.push({...event,life:1.3});tone(780,.16)}if(game.events)game.events.length=0;
  if(!game.paused)effects=effects.map(e=>({...e,life:e.life-dt})).filter(e=>e.life>0);
- if(game.phase==='setup'){homeTime+=dt;homeScene(ctx,homeTime,game.conditions)}else scene(ctx,game.time,game.people,game.price,game.making?game.making.elapsed/game.making.duration:0,game.conditions);
+ if(game.phase==='setup'){homeTime+=dt;homeScene(ctx,homeTime,game.conditions,game.state.day)}else scene(ctx,game.time,game.people,game.price,game.making?game.making.elapsed/game.making.duration:0,game.conditions);
  ctx.save();ctx.scale(2,2);ctx.font='bold 13px monospace';ctx.textAlign='center';for(const e of effects){ctx.globalAlpha=Math.min(1,e.life*2);ctx.fillStyle='#fff6c9';ctx.fillText('+'+money(e.price),e.x,e.y-50-(1.3-e.life)*24);if(e.tip){ctx.fillStyle='#ffe077';ctx.fillText('+'+money(e.tip)+' tip',e.x,e.y-35-(1.3-e.life)*24)}}ctx.restore();sync();requestAnimationFrame(frame)
 }
 requestAnimationFrame(frame);
+
+// Canvas uses object-fit: contain on mobile. Keep the native, keyboard-accessible
+// hotspot over the drawn sign, including any letterboxing.
+function positionMapSign(){
+ const canvas=$('#scene'),bounds=canvas.getBoundingClientRect(),parent=canvas.parentElement.getBoundingClientRect();
+ const width=Math.min(bounds.width,bounds.height*1.6),height=width/1.6;
+ const left=bounds.left-parent.left-canvas.parentElement.clientLeft+canvas.parentElement.scrollLeft+(bounds.width-width)/2;
+ const top=bounds.top-parent.top-canvas.parentElement.clientTop+canvas.parentElement.scrollTop+(bounds.height-height)/2;
+ Object.assign($('#map-sign').style,{left:`${left+width*176/480}px`,top:`${top+height*231/300}px`,width:`${width*82/480}px`,height:`${height*53/300}px`});
+}
+new ResizeObserver(positionMapSign).observe($('#scene'));
