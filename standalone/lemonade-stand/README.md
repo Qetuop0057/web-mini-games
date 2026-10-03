@@ -24,7 +24,7 @@ Temperature still speeds arrivals and raises customer budgets. Weather additiona
 
 ## Check and build
 
-`node --test engine.test.mjs simulation.test.mjs taste.test.mjs weather.test.mjs`
+`node --test engine.test.mjs simulation.test.mjs taste.test.mjs weather.test.mjs locations.test.mjs`
 
 `node build.mjs` creates a clean `out/` for Sites hosting.
 
@@ -43,3 +43,9 @@ The day number is drawn on a wooden board to the left of the house. House and ya
 The recipe icon opens a large two-leaf book. Each spread contains one recipe: the current draft, sour lemonade [2,1,2], sweet lemonade [1,2,2], and ice-cold lemonade [2,2,3]. Ingredient quantities and all five sour/sweet levels and three ice levels are listed, with the current recipe's levels highlighted. Bottom left/right arrows turn pages; keyboard Left/Right also work. First/last page arrows disable at the ends. Escape or the close button returns home. Browsing never applies a recipe or spends supplies.
 
 Click the stored lemonade stand in the home yard to inspect remaining cups, lemons, sugar and ice, plus drink capacity using the current draft recipe. This is a read-only view of owned stock; unpurchased quantities in the preparation form are not included. Back home or Escape closes it. The stand remains a serving control during actual street gameplay.
+
+## Town destinations and unlocks
+
+The enlarged map has Market, Lemon Lane (starting street), Willow Park, Commercial Street and Night Market. Market and Lemon Lane are open initially. Park unlocks at 20 lifetime cups sold, Commercial Street at 50, and Night Market at 100. Only completed sales count; totals carry across days and reset with a new game/refresh. Locked destinations show progress and cannot be selected, with the simulation checking eligibility independently of disabled map buttons.
+
+Market purchases add owned supplies and deduct cash immediately without starting the day. Market costs are included in that day's supply expenses and net cash change. Preparing a stand still allows buying extra stock. Choosing an unlocked selling location opens preparation, and that destination is fixed during the day. Park has benches, Commercial Street has buildings, and Night Market has lit stalls. Customer economy rules currently remain shared across selling locations; location-specific traffic/prices/fees can be added later.

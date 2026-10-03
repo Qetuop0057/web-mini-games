@@ -1,11 +1,18 @@
 const town=new Image();town.src='assets/town.png';
 const sprites=Object.fromEntries(['down','side','up'].map(d=>{const i=new Image();i.src=`assets/walk-${d}.png`;return[d,i]}));
-export function scene(ctx,time,people=[],price=150,serveProgress=0,conditions=null){
+export function scene(ctx,time,people=[],price=150,serveProgress=0,conditions=null,location='lemon-lane'){
  ctx.save();ctx.scale(2,2);ctx.imageSmoothingEnabled=false;
  const rect=(x,y,w,h,c)=>{ctx.fillStyle=c;ctx.fillRect(x,y,w,h)};
  const tile=(n,x,y,size=24)=>{if(town.complete&&town.naturalWidth)ctx.drawImage(town,(n%12)*16,Math.floor(n/12)*16,16,16,x,y,size,size)};
  // Tile coordinates below are verified against the downloaded Kenney atlas.
  rect(0,0,480,300,'#87bc73');for(let y=0;y<300;y+=24)for(let x=0;x<480;x+=24)tile((x+y)%72===0?1:0,x,y);
+ if(location==='park'){
+  for(const x of [28,376]){rect(x,134,66,5,'#85613e');rect(x,144,66,6,'#b48752');rect(x+5,149,5,13,'#715940');rect(x+55,149,5,13,'#715940')}
+ }else if(location==='commercial'){
+  for(const x of [12,380]){rect(x,25,86,135,'#a29a8b');rect(x+5,20,76,8,'#737c76');for(let y=38;y<130;y+=25)for(let dx=10;dx<75;dx+=24)rect(x+dx,y,15,16,'#c9ded8');rect(x+32,132,24,28,'#566b67')}
+ }else if(location==='night-market'){
+  for(const x of [16,378]){rect(x,106,80,8,'#9a785b');for(let i=0;i<8;i++)rect(x+i*10,85,10,21,i%2?'#cdb49e':'#9673a5');rect(x+5,114,4,43,'#765539');rect(x+70,114,4,43,'#765539');rect(x+4,148,72,16,'#ae8358')}
+ }
  rect(0,192,480,75,'#e9c397');rect(0,192,480,5,'#f7d8aa');rect(0,262,480,5,'#bf996e');
  for(let x=12;x<480;x+=36){rect(x,212,18,2,'#d9b180');rect(x+13,239,14,2,'#d9b180')}
  for(const [x,y] of [[24,16],[407,22],[65,78],[368,98],[24,275],[432,272]]){tile(5,x,y,40);tile(2,x+35,y+10,24)}
@@ -21,6 +28,9 @@ export function scene(ctx,time,people=[],price=150,serveProgress=0,conditions=nu
  for(let i=0;i<4;i++){ctx.strokeStyle='#d2ad80';ctx.setLineDash([2,4]);ctx.strokeRect(227,181+i*26,26,23);ctx.setLineDash([])}
  people.slice().sort((a,b)=>a.y-b.y).forEach(p=>person(ctx,p,time));
  if(serveProgress>0){rect(191,111,99,7,'#5a6947');rect(193,113,95*serveProgress,3,'#ffe077')}
+ if(location==='night-market'){
+  rect(0,0,480,300,'#24345766');for(const x of [42,438]){rect(x,142,3,45,'#596052');rect(x-5,133,13,12,'#ffe6a0');ctx.fillStyle='#ffdc7340';ctx.beginPath();ctx.arc(x+1,138,27,0,Math.PI*2);ctx.fill()}
+ }
  if(conditions?.id==='cloudy'||conditions?.id==='rainy'){
   rect(0,0,480,300,conditions.id==='rainy'?'#344a6e38':'#67778a1c');
  }

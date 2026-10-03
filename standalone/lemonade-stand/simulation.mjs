@@ -1,3 +1,4 @@
+import {getLocation,unlocked} from './locations.mjs';
 import {newGame,weather} from './engine.mjs';
 import {preferences,evaluateTaste} from './taste.mjs';
 import {arrivalInterval,customerBudget,coolPreferenceChance} from './weather.mjs';
@@ -6,9 +7,21 @@ export const capacity=(inventory,recipe)=>Math.max(0,Math.min(...inventory.map((
 // The simulation owns money, queue slots and time. Rendering only observes it.
 export class Simulation{
  constructor(random=Math.random){this.random=random;this.reset()}
- reset(){this.state=newGame();this.conditions=weather(this.random);this.tomorrow=weather(this.random);this.phase='setup';this.people=[];this.queue=[];this.price=150;this.recipe=[1,1,1];this.time=0;this.message='Ready to open?';this.notice=0;this.making=null;this.paused=false}
+ reset(){this.state=newGame();this.location='lemon-lane';this.dailySupplyCost=0;this.conditions=weather(this.random);this.tomorrow=weather(this.random);this.phase='setup';this.people=[];this.queue=[];this.price=150;this.recipe=[1,1,1];this.time=0;this.message='Ready to open?';this.notice=0;this.making=null;this.paused=false}
+ selectLocation(id){
+  if(this.phase!=='setup')throw Error('Choose a destination before opening.');
+  const location=getLocation(id);if(!unlocked(location,this.state.totalSold))throw Error(`Sell ${location.required} cups to unlock ${location.name}.`);
+  if(location.kind==='stand')this.location=id;return location;
+ }
+ buySupplies(order){
+  if(this.phase!=='setup')throw Error('Visit the market before opening.');
+  if(order.length!==4||order.some(n=>!Number.isInteger(n)||n<0||n>1000))throw Error('Choose whole supply quantities from 0 to 1000.');
+  const cost=order.reduce((sum,n,i)=>sum+n*this.conditions.prices[i],0);if(cost>this.state.cash)throw Error('Not enough cash for these supplies.');
+  this.state={...this.state,cash:this.state.cash-cost,inventory:this.state.inventory.map((n,i)=>n+order[i])};this.dailySupplyCost+=cost;return cost;
+ }
  open(order,recipe,price){
   if(this.phase!=='setup')throw Error('The stand is already open.');
+  const destination=getLocation(this.location);if(destination.kind!=='stand'||!unlocked(destination,this.state.totalSold))throw Error('This location is locked.');
   if(order.length!==4||order.some(n=>!Number.isInteger(n)||n<0||n>1000))throw Error('Choose whole supply quantities.');
   if(recipe.length!==3||recipe.some(n=>!Number.isInteger(n)||n<1||n>3))throw Error('Choose a recipe between 1 and 3.');
   if(!Number.isInteger(price)||price<25||price>500)throw Error('Price must be between $0.25 and $5.00.');
@@ -16,7 +29,7 @@ export class Simulation{
   if(cost>this.state.cash)throw Error('Not enough cash for those supplies.');
   if(!capacity(inventory,recipe))throw Error('Buy enough supplies for at least one cup.');
   this.state={...this.state,cash:this.state.cash-cost,inventory};this.recipe=[...recipe];this.price=price;this.phase='playing';this.remaining=DAY_LENGTH;this.spawnIn=.7;this.people=[];this.queue=[];this.making=null;this.time=0;this.paused=false;this.visits=0;
-  this.stats={sold:0,rejected:0,missed:0,impatient:0,cost,revenue:0,tips:0,profit:-cost};this.message='The stand is open!';this.notice=2;this.events=[];
+  this.stats={sold:0,rejected:0,missed:0,impatient:0,cost:cost+this.dailySupplyCost,revenue:0,tips:0,profit:-(cost+this.dailySupplyCost)};this.message='The stand is open!';this.notice=2;this.events=[];
  }
  announce(message){this.message=message;this.notice=2.5}
  spawn(){
@@ -71,7 +84,7 @@ export class Simulation{
     if(p&&capacity(this.state.inventory,this.recipe)>0){
      const taste=evaluateTaste(this.recipe,p.preference,this.price);
      [1,...this.recipe].forEach((n,i)=>this.state.inventory[i]-=n);
-     this.state.cash+=this.price+taste.tip;this.stats.sold++;this.stats.revenue+=this.price;this.stats.tips+=taste.tip;
+     this.state.cash+=this.price+taste.tip;this.stats.sold++;this.state.totalSold++;this.stats.revenue+=this.price;this.stats.tips+=taste.tip;
      this.stats.profit=this.stats.revenue+this.stats.tips-this.stats.cost;
      p.feedback=taste.feedback;p.rating=taste.rating;
      this.events.push({type:'sale',id:p.id,x:p.x,y:p.y,price:this.price,tip:taste.tip});
@@ -84,5 +97,5 @@ export class Simulation{
   if(!this.notice)this.message=this.remaining<=0?'Closing — serve the last customers':!capacity(this.state.inventory,this.recipe)?'Sold out':this.queue[0]?.state==='waiting'?'Order ready — make lemonade':'Customers are on their way';
   if(this.remaining<=0&&!this.people.length&&!this.making){this.phase='summary';this.message='Day complete'}
  }
- next(){if(this.phase!=='summary')return;this.state.day++;this.conditions=this.tomorrow;this.tomorrow=weather(this.random);this.phase='setup';this.people=[];this.queue=[];this.paused=false;this.message='A new day, a fresh start'}
+ next(){if(this.phase!=='summary')return;this.state.day++;this.dailySupplyCost=0;this.conditions=this.tomorrow;this.tomorrow=weather(this.random);this.phase='setup';this.people=[];this.queue=[];this.paused=false;this.message='A new day, a fresh start'}
 }
