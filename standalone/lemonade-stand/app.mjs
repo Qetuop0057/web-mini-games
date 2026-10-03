@@ -35,7 +35,7 @@ window.addEventListener('keydown',e=>{
  if(e.code==='Space'&&e.target.tagName!=='BUTTON'){e.preventDefault();if(!e.repeat)serve()}
  if(e.code==='Escape')pause();
 });
-function pause(){if(game.phase!=='playing')return;game.paused=!game.paused;$('#pause').textContent=game.paused?'Resume':'Pause';tone(220)}$('#pause').addEventListener('click',pause);
+function pause(){if(game.phase!=='playing')return;game.paused=!game.paused;$('#pause').setAttribute('aria-pressed',String(game.paused));$('#pause').textContent=game.paused?'Resume':'Pause';tone(220)}$('#pause').addEventListener('click',pause);
 document.addEventListener('visibilitychange',()=>{last=0;if(document.hidden&&game.phase==='playing'){game.paused=true;$('#pause').textContent='Resume'}});
 $('#sound').addEventListener('click',()=>{muted=!muted;$('#sound').textContent=muted?'Sound off':'Sound on';$('#sound').setAttribute('aria-pressed',String(!muted));$('#sound').setAttribute('aria-label',muted?'Enable sound':'Mute sound');tone(523)});
 $('#next').addEventListener('click',()=>{game.next();view='home';effects=[];tone(440)});$('#restart').addEventListener('click',()=>{game.reset();effects=[];view='home';shownPhase=''});
@@ -196,7 +196,7 @@ function syncCounter(){
  }
  $('#mixing-stage').setAttribute('aria-label',game.drink?`Current cup: ${amounts[0]} lemon, ${amounts[1]} sugar, ${amounts[2]} ice`:'No cup prepared');
  $('#cup-stock').textContent=game.state.inventory[0]+' cups left';
- $('#serve').disabled=!game.canServe();$('#discard').disabled=!game.drink||game.paused||!!game.making;$('#pause').disabled=false;
+ $('#serve').disabled=!game.canServe();$('#discard').disabled=!game.drink||game.paused||!!game.making;$('#pause').disabled=false;$('#pause').setAttribute('aria-pressed',String(game.paused));
  $('#serve').textContent=game.making?`Mixing ${Math.min(100,Math.round(game.making.elapsed/game.making.duration*100))}%`:'Mix & serve';
  const status=game.paused?'Paused':game.notice>0?game.message:game.canServe()?'Ready to serve':game.drink?'Add lemon, sugar and ice':game.message;
  if($('#progress').textContent!==status)$('#progress').textContent=status;
