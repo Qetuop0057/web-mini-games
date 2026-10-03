@@ -41,3 +41,5 @@ The day number is drawn on a wooden board to the left of the house. House and ya
 ## Paged recipe book
 
 The recipe icon opens a large two-leaf book. Each spread contains one recipe: the current draft, sour lemonade [2,1,2], sweet lemonade [1,2,2], and ice-cold lemonade [2,2,3]. Ingredient quantities and all five sour/sweet levels and three ice levels are listed, with the current recipe's levels highlighted. Bottom left/right arrows turn pages; keyboard Left/Right also work. First/last page arrows disable at the ends. Escape or the close button returns home. Browsing never applies a recipe or spends supplies.
+
+Click the stored lemonade stand in the home yard to inspect remaining cups, lemons, sugar and ice, plus drink capacity using the current draft recipe. This is a read-only view of owned stock; unpurchased quantities in the preparation form are not included. Back home or Escape closes it. The stand remains a serving control during actual street gameplay.

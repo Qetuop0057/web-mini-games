@@ -20,12 +20,17 @@ $('#next').addEventListener('click',()=>{game.next();view='home';effects=[];tone
 function changeView(next){
  if(game.phase!=='setup')return;
  view=next;
+ if(next==='inventory'){
+  $('#inventory-details').replaceChildren(...names.map((name,i)=>{const div=document.createElement('div');div.textContent=name;const strong=document.createElement('strong');strong.textContent=game.state.inventory[i];div.append(strong);return div}));
+  const draft=recipe().map((n,i)=>Number.isInteger(n)&&n>=1&&n<=3?n:game.recipe[i]);
+  $('#inventory-capacity').textContent=capacity(game.state.inventory,draft);
+ }
  if(next==='recipe'){
   const quantities=recipe().map((n,i)=>Number.isInteger(n)&&n>=1&&n<=3?n:game.recipe[i]);
   bookRecipes=recipePages(quantities);bookPage=0;renderRecipePage();
  }
  syncView();
- $(next==='map'?'#close-map':next==='recipe'?'#close-recipe':next==='prepare'?'#price':'#go-stand').focus();
+ $(next==='inventory'?'#close-inventory':next==='map'?'#close-map':next==='recipe'?'#close-recipe':next==='prepare'?'#price':'#go-stand').focus();
 }
 function renderRecipePage(direction){
  const page=bookRecipes[bookPage],labels=tasteLabels(page.quantities);
@@ -45,6 +50,9 @@ function turnRecipe(direction){if(view!=='recipe'||game.phase!=='setup')return;c
 $('#recipe-prev').addEventListener('click',()=>turnRecipe('previous'));
 $('#recipe-next').addEventListener('click',()=>turnRecipe('next'));
 window.addEventListener('keydown',e=>{if(view==='recipe'&&game.phase==='setup'){if(e.code==='ArrowLeft'||e.code==='ArrowRight'){e.preventDefault();turnRecipe(e.code==='ArrowRight'?'next':'previous')}else if(e.code==='Escape'){changeView('home');$('#show-recipe').focus()}}});
+$('#show-inventory').addEventListener('click',()=>changeView('inventory'));
+$('#close-inventory').addEventListener('click',()=>{changeView('home');$('#show-inventory').focus()});
+window.addEventListener('keydown',e=>{if(e.code==='Escape'&&view==='inventory'){changeView('home');$('#show-inventory').focus()}});
 $('#map-sign').addEventListener('click',()=>changeView('map'));
 $('#close-map').addEventListener('click',()=>{changeView('home');$('#map-sign').focus()});
 $('#go-stand').addEventListener('click',()=>changeView('prepare'));
@@ -54,6 +62,7 @@ $('#close-recipe').addEventListener('click',()=>{changeView('home');$('#show-rec
 function syncView(){
  const atHome=game.phase==='setup';
  $('#overlay').hidden=game.phase==='playing'||(atHome&&view==='home');
+ $('#inventory-view').hidden=!atHome||view!=='inventory';$('#show-inventory').hidden=!atHome||view!=='home';
  $('#map-view').hidden=!atHome||view!=='map';$('#map-sign').hidden=!atHome||view!=='home';$('#show-recipe').hidden=!atHome||view!=='home';positionHomeHotspots();
  $('#setup').hidden=!atHome||view!=='prepare';$('#recipe-view').hidden=!atHome||view!=='recipe';$('#summary').hidden=game.phase!=='summary';
  $('#home-actions').hidden=!atHome;$('#play-actions').hidden=game.phase!=='playing';$('#clock').hidden=game.phase!=='playing';$('#banner').hidden=atHome&&view!=='home';
@@ -89,7 +98,7 @@ function positionHomeHotspots(){
  const width=Math.min(bounds.width,bounds.height*1.6),height=width/1.6;
  const left=bounds.left-parent.left-canvas.parentElement.clientLeft+canvas.parentElement.scrollLeft+(bounds.width-width)/2;
  const top=bounds.top-parent.top-canvas.parentElement.clientTop+canvas.parentElement.scrollTop+(bounds.height-height)/2;
- for(const [id,x,y,w,h] of [['map-sign',176,231,82,53],['show-recipe',332,32,68,54]]){
+ for(const [id,x,y,w,h] of [['map-sign',176,231,82,53],['show-recipe',332,32,68,54],['show-inventory',310,98,102,78]]){
   Object.assign($('#'+id).style,{left:`${left+width*x/480}px`,top:`${top+height*y/300}px`,width:`${width*w/480}px`,height:`${height*h/300}px`});
  }
 }
