@@ -101,6 +101,7 @@ export function homeScene(ctx,time,conditions,day=1){
  rect(342,43,22,31,'#735b42');rect(364,40,24,34,'#735b42');rect(346,46,17,24,'#fff0c8');rect(367,43,17,27,'#fff6db');
  rect(363,45,3,29,'#bd9f70');rect(347,50,12,2,'#cdb68c');rect(347,55,10,2,'#cdb68c');rect(347,60,12,2,'#cdb68c');
  rect(372,49,8,8,'#f0ca44');rect(378,46,5,3,'#69945a');rect(373,62,9,2,'#cdb68c');rect(380,67,3,11,'#b76e56');
+ rect(344,50,42,15,'#fff6db');ctx.fillStyle='#493d2b';ctx.font='bold 10px monospace';ctx.textAlign='center';ctx.fillText('Recipe',365,62);
  // A day marker stands to the left of the house, away from its doorway.
  rect(32,125,6,43,'#765539');rect(14,104,46,27,'#72543a');rect(17,107,40,21,'#d3a970');
  ctx.font='bold 11px monospace';ctx.textAlign='center';ctx.fillStyle='#493d2b';ctx.fillText(`DAY ${day}`,37,122);
