@@ -1,10 +1,11 @@
+import {generateWeather} from './weather.mjs';
 export const names = ["Cups", "Lemons", "Sugar", "Ice"];
 export const money = cents => `$${(cents / 100).toFixed(2)}`;
 export function newGame() { return { day: 1, cash: 2000, inventory: [0, 0, 0, 0] }; }
 export function weather(random = Math.random) {
-  const temperature = 60 + Math.floor(random() * 31);
-  const customers = temperature >= 85 ? 15 + Math.floor(random() * 11) : temperature >= 75 ? 8 + Math.floor(random() * 11) : 3 + Math.floor(random() * 8);
-  return { temperature, customers, prices: [10, 20, 10, 5].map(base => base + Math.floor(random() * 3) * 5) };
+ const conditions=generateWeather(random);
+ // Only the retained lab batch simulator uses this estimate; live gameplay uses arrivalInterval.
+ return {...conditions,customers:Math.max(3,Math.round((8+(conditions.temperature-60)*.5)*conditions.traffic))};
 }
 // 所有钱以整数美分计算；先验证全部输入，再一次性采购，防止部分扣款。
 export function runDay(state, conditions, order, recipe, price, random = Math.random) {

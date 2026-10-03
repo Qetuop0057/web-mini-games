@@ -1,6 +1,6 @@
 const town=new Image();town.src='assets/town.png';
 const sprites=Object.fromEntries(['down','side','up'].map(d=>{const i=new Image();i.src=`assets/walk-${d}.png`;return[d,i]}));
-export function scene(ctx,time,people=[],price=150,serveProgress=0){
+export function scene(ctx,time,people=[],price=150,serveProgress=0,conditions=null){
  ctx.save();ctx.scale(2,2);ctx.imageSmoothingEnabled=false;
  const rect=(x,y,w,h,c)=>{ctx.fillStyle=c;ctx.fillRect(x,y,w,h)};
  const tile=(n,x,y,size=24)=>{if(town.complete&&town.naturalWidth)ctx.drawImage(town,(n%12)*16,Math.floor(n/12)*16,16,16,x,y,size,size)};
@@ -21,6 +21,15 @@ export function scene(ctx,time,people=[],price=150,serveProgress=0){
  for(let i=0;i<4;i++){ctx.strokeStyle='#d2ad80';ctx.setLineDash([2,4]);ctx.strokeRect(227,181+i*26,26,23);ctx.setLineDash([])}
  people.slice().sort((a,b)=>a.y-b.y).forEach(p=>person(ctx,p,time));
  if(serveProgress>0){rect(191,111,99,7,'#5a6947');rect(193,113,95*serveProgress,3,'#ffe077')}
+ if(conditions?.id==='cloudy'||conditions?.id==='rainy'){
+  rect(0,0,480,300,conditions.id==='rainy'?'#344a6e38':'#67778a1c');
+ }
+ if(conditions?.id==='rainy'){
+  ctx.strokeStyle='#d5e5ed99';ctx.lineWidth=1;
+  for(let i=0;i<55;i++){const x=(i*83+time*30)%500-10,y=(i*47+time*145)%320-10;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-3,y+8);ctx.stroke()}
+ }else if(conditions?.id==='heatwave'){
+  rect(0,0,480,300,'#ffd77919');
+ }
  ctx.restore();
 }
 export function person(ctx,p,time){const d=p.dir||'down',im=sprites[d],w=d==='side'?10:12,h=15,frame=p.moving?Math.floor(time*8)%4:0;

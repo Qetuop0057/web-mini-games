@@ -1,4 +1,4 @@
-// Preferences have equal probability. All monetary values remain integer cents.
+// Weather selects preference probabilities; targets remain fixed. All monetary values remain integer cents.
 export const preferences = [
  { id: 'sour', balance: -1, ice: 2 },
  { id: 'sweet', balance: 1, ice: 2 },

@@ -1,11 +1,12 @@
 import {newGame,weather} from './engine.mjs';
 import {preferences,evaluateTaste} from './taste.mjs';
+import {arrivalInterval,customerBudget,coolPreferenceChance} from './weather.mjs';
 export const DAY_LENGTH=75;
 export const capacity=(inventory,recipe)=>Math.max(0,Math.min(...inventory.map((n,i)=>Math.floor(n/[1,...recipe][i]))));
 // The simulation owns money, queue slots and time. Rendering only observes it.
 export class Simulation{
  constructor(random=Math.random){this.random=random;this.reset()}
- reset(){this.state=newGame();this.conditions=weather(this.random);this.phase='setup';this.people=[];this.queue=[];this.price=150;this.recipe=[1,1,1];this.time=0;this.message='Ready for a sunny day?';this.notice=0;this.making=null;this.paused=false}
+ reset(){this.state=newGame();this.conditions=weather(this.random);this.tomorrow=weather(this.random);this.phase='setup';this.people=[];this.queue=[];this.price=150;this.recipe=[1,1,1];this.time=0;this.message='Ready to open?';this.notice=0;this.making=null;this.paused=false}
  open(order,recipe,price){
   if(this.phase!=='setup')throw Error('The stand is already open.');
   if(order.length!==4||order.some(n=>!Number.isInteger(n)||n<0||n>1000))throw Error('Choose whole supply quantities.');
@@ -19,9 +20,10 @@ export class Simulation{
  }
  announce(message){this.message=message;this.notice=2.5}
  spawn(){
-  const budget=85+(this.conditions.temperature-60)*3+this.recipe[0]*10+Math.floor(this.random()*100);
+  const budget=customerBudget(this.conditions,this.recipe[0],this.random);
   const p={id:++this.visits,x:-18,y:213,state:'approaching',dir:'side',moving:true,tint:Math.floor(this.random()*35)-10,maxPatience:12+this.random()*7,patience:0,path:[{x:150,y:213}],bubble:null};p.patience=p.maxPatience;
-  p.preference=preferences[Math.floor(this.random()*preferences.length)];p.willing=budget>=this.price;this.people.push(p);
+  const coolChance=coolPreferenceChance(this.conditions),roll=this.random();
+  p.preference=roll<coolChance?preferences[2]:roll<coolChance+(1-coolChance)/2?preferences[0]:preferences[1];p.willing=budget>=this.price;this.people.push(p);
  }
  leave(p,bubble){
   // Remove queue ownership immediately, so the next customer can advance.
@@ -44,7 +46,7 @@ export class Simulation{
  tick(dt){
   if(this.phase!=='playing'||this.paused)return;
   dt=Math.max(0,Math.min(dt,.1));this.time+=dt;this.remaining=Math.max(0,this.remaining-dt);this.notice=Math.max(0,this.notice-dt);
-  if(this.remaining>0){this.spawnIn-=dt;if(this.spawnIn<=0){this.spawn();this.spawnIn=2.8+this.random()*2.5-(this.conditions.temperature-60)*.035}}
+  if(this.remaining>0){this.spawnIn-=dt;if(this.spawnIn<=0){this.spawn();this.spawnIn=arrivalInterval(this.conditions,this.random)}}
   for(const p of this.people){
    if(p.state==='approaching'&&this.advance(p,dt)){
     if(!p.willing){this.stats.rejected++;this.leave(p,'$!');this.announce('Too expensive for this customer')}
@@ -80,5 +82,5 @@ export class Simulation{
   if(!this.notice)this.message=this.remaining<=0?'Closing — serve the last customers':!capacity(this.state.inventory,this.recipe)?'Sold out':this.queue[0]?.state==='waiting'?'Order ready — make lemonade':'Customers are on their way';
   if(this.remaining<=0&&!this.people.length&&!this.making){this.phase='summary';this.message='Day complete'}
  }
- next(){if(this.phase!=='summary')return;this.state.day++;this.conditions=weather(this.random);this.phase='setup';this.people=[];this.queue=[];this.paused=false;this.message='A new day, a fresh start'}
+ next(){if(this.phase!=='summary')return;this.state.day++;this.conditions=this.tomorrow;this.tomorrow=weather(this.random);this.phase='setup';this.people=[];this.queue=[];this.paused=false;this.message='A new day, a fresh start'}
 }

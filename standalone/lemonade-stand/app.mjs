@@ -6,7 +6,7 @@ function tone(freq,duration=.12){if(muted)return;try{audio??=new (window.AudioCo
 function recipe(){return ['lemons','sugar','ice'].map(id=>Number($('#'+id).value))}function order(){return [...document.querySelectorAll('.supply input')].map(el=>Number(el.value))}
 function refreshCost(){const cost=order().reduce((s,n,i)=>s+n*game.conditions.prices[i],0);$('#cost').textContent=money(cost);$('#error').textContent=cost>game.state.cash?'Not enough cash':''}
 function setup(){
- $('#setup-day').textContent=game.state.day;$('#forecast').textContent=`☀ ${game.conditions.temperature}°F`;
+ $('#setup-day').textContent=game.state.day;$('#forecast').textContent=`Today: ${game.conditions.icon} ${game.conditions.label} · ${game.conditions.temperature}°F`;$('#tomorrow').textContent=`Tomorrow: ${game.tomorrow.icon} ${game.tomorrow.label} · ${game.tomorrow.temperature}°F`;$('#forecast').title=game.conditions.description;
  $('#supplies').replaceChildren(...names.map((name,i)=>{const label=document.createElement('label');label.className='supply';const span=document.createElement('span');span.textContent=name+' ';const small=document.createElement('small');small.textContent=`${money(game.conditions.prices[i])} each · ${game.state.inventory[i]} left`;span.append(small);const input=document.createElement('input');Object.assign(input,{type:'number',min:'0',max:'1000',step:'1',value:game.state.day===1?'20':'10',required:true});input.setAttribute('aria-label',`Buy ${name.toLowerCase()}`);input.addEventListener('input',refreshCost);label.append(span,input);return label}));refreshCost();
 }
 $('#setup').addEventListener('submit',e=>{e.preventDefault();try{game.open(order(),recipe(),Math.round(Number($('#price').value)*100));effects=[];$('#scene').focus();tone(440)}catch(error){$('#error').textContent=error.message}});
@@ -17,7 +17,7 @@ document.addEventListener('visibilitychange',()=>{last=0;if(document.hidden&&gam
 $('#sound').addEventListener('click',()=>{muted=!muted;$('#sound').textContent=muted?'Sound off':'Sound on';$('#sound').setAttribute('aria-pressed',String(!muted));$('#sound').setAttribute('aria-label',muted?'Enable sound':'Mute sound');tone(523)});
 $('#next').addEventListener('click',()=>{game.next();tone(440)});$('#restart').addEventListener('click',()=>{game.reset();effects=[];shownPhase=''});
 function sync(){
- $('#day').textContent=game.state.day;$('#cash').textContent=money(game.state.cash);$('#cups').textContent=capacity(game.state.inventory,game.recipe);$('#weather').textContent=`☀ ${game.conditions.temperature}°F`;
+ $('#day').textContent=game.state.day;$('#cash').textContent=money(game.state.cash);$('#cups').textContent=capacity(game.state.inventory,game.recipe);$('#weather').textContent=`${game.conditions.icon} ${game.conditions.label} · ${game.conditions.temperature}°F`;
  const seconds=Math.ceil(game.phase==='playing'?game.remaining:DAY_LENGTH);$('#clock').textContent=`${Math.floor(seconds/60).toString().padStart(2,'0')}:${(seconds%60).toString().padStart(2,'0')}`;
  $('#banner').textContent=game.paused?'Paused':game.message;
  $('#serve').disabled=game.phase!=='playing'||game.paused||!!game.making||game.queue[0]?.state!=='waiting'||!capacity(game.state.inventory,game.recipe);
@@ -33,7 +33,7 @@ function sync(){
 function frame(timestamp){const dt=last?Math.min((timestamp-last)/1000,.1):0;last=timestamp;game.tick(dt);
  for(const event of game.events||[]){effects.push({...event,life:1.3});tone(780,.16)}if(game.events)game.events.length=0;
  if(!game.paused)effects=effects.map(e=>({...e,life:e.life-dt})).filter(e=>e.life>0);
- scene(ctx,game.time,game.people,game.price,game.making?game.making.elapsed/game.making.duration:0);
+ scene(ctx,game.time,game.people,game.price,game.making?game.making.elapsed/game.making.duration:0,game.conditions);
  ctx.save();ctx.scale(2,2);ctx.font='bold 13px monospace';ctx.textAlign='center';for(const e of effects){ctx.globalAlpha=Math.min(1,e.life*2);ctx.fillStyle='#fff6c9';ctx.fillText('+'+money(e.price),e.x,e.y-50-(1.3-e.life)*24);if(e.tip){ctx.fillStyle='#ffe077';ctx.fillText('+'+money(e.tip)+' tip',e.x,e.y-35-(1.3-e.life)*24)}}ctx.restore();sync();requestAnimationFrame(frame)
 }
 requestAnimationFrame(frame);
