@@ -34,7 +34,7 @@ function changeView(next){
   bookRecipes=recipePages(quantities);bookPage=0;renderRecipePage();
  }
  syncView();
- $(next==='market'?'#market-home':next==='inventory'?'#close-inventory':next==='map'?'#close-map':next==='recipe'?'#close-recipe':next==='prepare'?'#price':'#go-stand').focus();
+ $(next==='market'?'#market-home':next==='inventory'?'#close-inventory':next==='map'?'#close-map':next==='recipe'?'#close-recipe':next==='prepare'?'#price':'#map-sign').focus();
 }
 function renderMap(){
  $('#map-progress').textContent=`${game.state.totalSold} cups sold`;
@@ -77,7 +77,6 @@ $('#close-inventory').addEventListener('click',()=>{changeView('home');$('#show-
 window.addEventListener('keydown',e=>{if(e.code==='Escape'&&view==='inventory'){changeView('home');$('#show-inventory').focus()}});
 $('#map-sign').addEventListener('click',()=>changeView('map'));
 $('#close-map').addEventListener('click',()=>{changeView('home');$('#map-sign').focus()});
-$('#go-stand').addEventListener('click',()=>changeView('prepare'));
 $('#show-recipe').addEventListener('click',()=>changeView('recipe'));
 $('#back-home').addEventListener('click',()=>changeView('home'));
 $('#close-recipe').addEventListener('click',()=>{changeView('home');$('#show-recipe').focus()});
@@ -100,7 +99,7 @@ function sync(){
  $('#pause').disabled=game.phase!=='playing';
  $('#progress').textContent=game.making?`Mixing… ${Math.min(100,Math.round(game.making.elapsed/game.making.duration*100))}%`:game.paused?'Press Resume to continue':'Click the stand or press Space';
  if(shownPhase!==game.phase){shownPhase=game.phase;$('#pause').textContent='Pause';if(game.phase==='setup')view='home';syncView();
-  if(game.phase==='setup'){setup();['lemons','sugar','ice'].forEach((id,i)=>$('#'+id).value=game.recipe[i]);$('#go-stand').focus()}
+  if(game.phase==='setup'){setup();['lemons','sugar','ice'].forEach((id,i)=>$('#'+id).value=game.recipe[i]);$('#map-sign').focus()}
   if(game.phase==='summary'){
    const s=game.stats;$('#results').replaceChildren(...[['Cups sold',s.sold],['Sales revenue',money(s.revenue)],['Tips',money(s.tips)],['Supplies',money(s.cost)],['Net cash change',money(s.profit)],['Price rejected',s.rejected],['Walked away',s.impatient+s.missed]].map(([label,value])=>{const div=document.createElement('div');div.textContent=label;const strong=document.createElement('strong');strong.textContent=value;div.append(strong);return div}));tone(659,.3);$('#next').focus();
   }
