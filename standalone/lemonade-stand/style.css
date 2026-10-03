@@ -102,3 +102,5 @@
 @media(max-width:650px){.stand-controls #pause{min-width:90px;font-size:15px;padding:8px 12px}.mixing-actions{grid-template-columns:minmax(0,1fr)}}
 
 .ingredient-button .portion-count{white-space:nowrap}
+
+#setup #stand-fee{font-size:14px;font-weight:700;margin:6px 0;color:#875532}

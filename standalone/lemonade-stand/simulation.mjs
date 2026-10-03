@@ -1,6 +1,6 @@
 import {chooseDrink,fruitIngredients,matchesDrink} from './drinks.mjs';
 import {marketQuote,stallProducts} from './market.mjs';
-import {getLocation,unlocked} from './locations.mjs';
+import {getLocation,unlocked,locationBudget,locationArrivalInterval} from './locations.mjs';
 import {newGame,weather} from './engine.mjs';
 import {preferences,evaluateTaste} from './taste.mjs';
 import {arrivalInterval,customerBudget,coolPreferenceChance} from './weather.mjs';
@@ -36,8 +36,10 @@ export class Simulation{
   const destination=getLocation(this.location);if(destination.kind!=='stand'||!unlocked(destination,this.state.totalSold))throw Error('This location is locked.');
   if(!Number.isInteger(price)||price<25||price>500)throw Error('Price must be between $0.25 and $5.00.');
   if(!capacity(this.state.inventory))throw Error('Visit the market for cups, lemons, sugar and ice first.');
-  this.price=price;this.phase='playing';this.remaining=DAY_LENGTH;this.spawnIn=.7;this.people=[];this.queue=[];this.making=null;this.drink=null;this.time=0;this.paused=false;this.visits=0;
-  this.stats={sold:0,rejected:0,missed:0,impatient:0,wasted:0,wrongDrinks:0,cost:this.dailySupplyCost,revenue:0,tips:0,profit:-this.dailySupplyCost};this.message='The stand is open!';this.notice=2;this.events=[];
+  const stallFee=destination.stallFee??0;if(this.state.cash<stallFee)throw Error(`You need $${(stallFee/100).toFixed(2)} for the stall fee.`);
+  // Debit only after all checks succeed; reopening is guarded by the phase.
+  this.state.cash-=stallFee;this.price=price;this.phase='playing';this.remaining=DAY_LENGTH;this.spawnIn=.7;this.people=[];this.queue=[];this.making=null;this.drink=null;this.time=0;this.paused=false;this.visits=0;
+  this.stats={sold:0,rejected:0,missed:0,impatient:0,wasted:0,wrongDrinks:0,supplyCost:this.dailySupplyCost,stallFee,cost:this.dailySupplyCost+stallFee,revenue:0,tips:0,profit:-this.dailySupplyCost-stallFee};this.message='The stand is open!';this.notice=2;this.events=[];
  }
  activeCustomer(){const p=this.queue[0];return p?.state==='waiting'&&Math.hypot(p.x-240,p.y-204)<1?p:null}
  hasSupplies(){return this.drink?this.drink.ingredients.every((n,i)=>n>0||this.state.inventory[i+1]>0):capacity(this.state.inventory)>0}
@@ -62,7 +64,7 @@ export class Simulation{
  canServe(){return this.phase==='playing'&&!this.paused&&!this.making&&!!this.activeCustomer()&&!!this.drink&&this.drink.ingredients.every(n=>n>=1)}
  announce(message){this.message=message;this.notice=2.5}
  spawn(){
-  const budget=customerBudget(this.conditions,1,this.random);
+  const budget=locationBudget(this.location,customerBudget(this.conditions,1,this.random));
   const p={id:++this.visits,x:-18,y:213,state:'approaching',dir:'side',moving:true,tint:Math.floor(this.random()*35)-10,maxPatience:12+this.random()*7,patience:0,path:[{x:150,y:213}],bubble:null};p.patience=p.maxPatience;
   const coolChance=coolPreferenceChance(this.conditions),roll=this.random();
   p.preference=roll<coolChance?preferences[2]:roll<coolChance+(1-coolChance)/2?preferences[0]:preferences[1];p.willing=budget>=this.price;p.order=chooseDrink(this.random);
@@ -88,7 +90,7 @@ export class Simulation{
  tick(dt){
   if(this.phase!=='playing'||this.paused)return;
   dt=Math.max(0,Math.min(dt,.1));this.time+=dt;this.remaining=Math.max(0,this.remaining-dt);this.notice=Math.max(0,this.notice-dt);
-  if(this.remaining>0){this.spawnIn-=dt;if(this.spawnIn<=0){this.spawn();this.spawnIn=arrivalInterval(this.conditions,this.random)}}
+  if(this.remaining>0){this.spawnIn-=dt;if(this.spawnIn<=0){this.spawn();this.spawnIn=locationArrivalInterval(this.location,arrivalInterval(this.conditions,this.random))}}
   for(const p of this.people){
    if(p.state==='approaching'&&this.advance(p,dt)){
     if(!p.willing){this.stats.rejected++;this.leave(p,'$!');this.announce('Too expensive for this customer')}

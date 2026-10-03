@@ -24,3 +24,26 @@ test('completed sales unlock regions and persist across days while reset clears 
 test('locked location guard also prevents opening even if the UI is bypassed',()=>{
  const g=new Simulation(()=>.5);g.location='night-market';assert.throws(()=>g.open(100));assert.equal(g.state.cash,1500);assert.equal(g.phase,'setup');
 });
+
+test('night-market fee is charged atomically once at opening and shown separately from supplies',()=>{
+ const g=new Simulation(()=>.5);g.state.totalSold=100;g.selectLocation('night-market');const before=JSON.stringify(g);
+ assert.throws(()=>g.open(150),/50.00/);assert.equal(JSON.stringify(g),before);
+ g.state.cash=10000;const stock=[...g.state.inventory],forecast=JSON.stringify(g.conditions);assert.throws(()=>g.open(0));assert.equal(g.state.cash,10000);
+ g.open(150);assert.equal(g.state.cash,5000);assert.equal(g.stats.stallFee,5000);assert.equal(g.stats.supplyCost,0);assert.equal(g.stats.cost,5000);assert.equal(g.stats.profit,-5000);assert.deepEqual(g.state.inventory,stock);assert.equal(JSON.stringify(g.conditions),forecast);
+ assert.throws(()=>g.open(150));assert.equal(g.state.cash,5000);g.finishDay();assert.equal(g.stats.profit,-5000);assert.equal(g.state.cash,5000);
+ g.next();g.open(150);assert.equal(g.state.cash,0);assert.equal(g.stats.stallFee,5000);g.finishDay();g.next();assert.throws(()=>g.open(150),/50.00/);assert.equal(g.state.cash,0);assert.equal(g.phase,'setup');
+});
+test('fee validation preserves inventory, cash and day when locked or missing supplies',()=>{
+ const g=new Simulation(()=>.5);g.state.cash=10000;g.location='night-market';const before=JSON.stringify(g);assert.throws(()=>g.open(150),/locked/);assert.equal(JSON.stringify(g),before);
+ g.state.totalSold=100;g.state.inventory=[0,10,10,10];const empty=JSON.stringify(g);assert.throws(()=>g.open(150),/market/);assert.equal(JSON.stringify(g),empty);
+});
+test('night-market traffic stacks with weather and yields roughly twice as many arrivals',()=>{
+ for(const weather of [{id:'sunny',temperature:76,traffic:1,budget:0},{id:'rainy',temperature:64,traffic:.55,budget:-25}]){
+  const counts=[];for(const id of ['lemon-lane','night-market']){const g=new Simulation(()=>.5);g.state.totalSold=100;g.state.cash=10000;g.conditions={...g.conditions,...weather};g.selectLocation(id);g.open(150);for(let i=0;i<1500;i++)g.tick(.05);counts.push(g.visits)}
+  assert.ok(counts[1]>=counts[0]*1.8,JSON.stringify(counts));assert.ok(counts[1]<=counts[0]*2.1,JSON.stringify(counts));
+ }
+});
+test('commercial customers accept a higher price while weather, tips and other locations keep their rules',()=>{
+ const customers=[];for(const id of ['lemon-lane','park','commercial']){const g=new Simulation(()=>.5);g.state.totalSold=100;g.conditions={...g.conditions,id:'sunny',temperature:70,budget:0,traffic:1};g.selectLocation(id);g.open(225);g.spawn();customers.push(g.people[0].willing);assert.equal(g.stats.stallFee,0);assert.equal(g.state.cash,1500)}
+ assert.deepEqual(customers,[false,false,true]);
+});
