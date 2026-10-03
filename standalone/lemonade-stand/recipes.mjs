@@ -5,6 +5,8 @@ export function recipePages() {
   {name:'Sour lemonade',quantities:[2,1,2]},
   {name:'Sweet lemonade',quantities:[1,2,2]},
   {name:'Ice-cold lemonade',quantities:[2,2,3]},
+  {name:'Pink lemonade',quantities:[1,1,2],fruit:'strawberry'},
+  {name:'Watermelon lemonade',quantities:[1,1,2],fruit:'watermelon'},
  ];
 }
 export function tasteLabels(quantities) {

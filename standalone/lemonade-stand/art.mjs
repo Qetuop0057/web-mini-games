@@ -1,3 +1,4 @@
+import {ingredientIcon} from './mixing-art.mjs';
 const town=new Image();town.src='assets/town.png';
 const sprites=Object.fromEntries(['down','side','up'].map(d=>{
  const image=new Image();
@@ -62,7 +63,9 @@ export function person(ctx,p,time){const d=p.dir||'down',im=sprites[d],w=d==='si
  if(p.bubble){ctx.font='bold 10px monospace';const bx=p.x+(p.umbrella?28:14),by=p.y-46,width=p.feedback?Math.max(66,ctx.measureText(p.feedback).width+30):28;
   ctx.fillStyle='#fff9e8';ctx.fillRect(bx,by,width,19);ctx.fillRect(bx-4,by+13,4,4);
   const rect=(x,y,w,h,c)=>{ctx.fillStyle=c;ctx.fillRect(x,y,w,h)};
-  if(p.bubble==='taste-sour'){
+  if(p.bubble==='drink-pink'||p.bubble==='drink-watermelon'){
+   ingredientIcon(ctx,p.bubble==='drink-pink'?3:4,bx+4,by,.6);
+  }else if(p.bubble==='taste-sour'){
    rect(bx+8,by+7,12,7,'#f5cb42');rect(bx+10,by+5,8,11,'#ffe276');rect(bx+18,by+3,5,3,'#6b9955');
   }else if(p.bubble==='taste-sweet'){
    rect(bx+9,by+5,11,11,'#decfc4');rect(bx+8,by+4,10,10,'#fffef5');rect(bx+8,by+4,10,2,'#c6b6a8');

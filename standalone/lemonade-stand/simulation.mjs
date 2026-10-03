@@ -1,3 +1,4 @@
+import {chooseDrink,fruitIngredients,matchesDrink} from './drinks.mjs';
 import {marketQuote,stallProducts} from './market.mjs';
 import {getLocation,unlocked} from './locations.mjs';
 import {newGame,weather} from './engine.mjs';
@@ -36,19 +37,23 @@ export class Simulation{
   if(!Number.isInteger(price)||price<25||price>500)throw Error('Price must be between $0.25 and $5.00.');
   if(!capacity(this.state.inventory))throw Error('Visit the market for cups, lemons, sugar and ice first.');
   this.price=price;this.phase='playing';this.remaining=DAY_LENGTH;this.spawnIn=.7;this.people=[];this.queue=[];this.making=null;this.drink=null;this.time=0;this.paused=false;this.visits=0;
-  this.stats={sold:0,rejected:0,missed:0,impatient:0,wasted:0,cost:this.dailySupplyCost,revenue:0,tips:0,profit:-this.dailySupplyCost};this.message='The stand is open!';this.notice=2;this.events=[];
+  this.stats={sold:0,rejected:0,missed:0,impatient:0,wasted:0,wrongDrinks:0,cost:this.dailySupplyCost,revenue:0,tips:0,profit:-this.dailySupplyCost};this.message='The stand is open!';this.notice=2;this.events=[];
  }
  activeCustomer(){const p=this.queue[0];return p?.state==='waiting'&&Math.hypot(p.x-240,p.y-204)<1?p:null}
  hasSupplies(){return this.drink?this.drink.ingredients.every((n,i)=>n>0||this.state.inventory[i+1]>0):capacity(this.state.inventory)>0}
  prepareCup(){
   if(this.phase!=='playing'||this.paused||this.drink||!this.activeCustomer()||!this.hasSupplies())return false;
   // A cup and every added portion are consumed immediately, never refunded.
-  this.state.inventory[0]--;this.drink={ingredients:[0,0,0]};return true;
+  this.state.inventory[0]--;this.drink={ingredients:[0,0,0],fruit:{strawberry:0,watermelon:0}};return true;
  }
- canAdd(index){return Number.isInteger(index)&&index>=0&&index<3&&this.phase==='playing'&&!this.paused&&!this.making&&!!this.activeCustomer()&&!!this.drink&&this.drink.ingredients[index]<3&&this.state.inventory[index+1]>0}
+ ingredientStock(index){return index<3?this.state.inventory[index+1]:this.state.pantry[fruitIngredients[index-3]]??0}
+ ingredientAmount(index){return index<3?this.drink?.ingredients[index]??0:this.drink?.fruit?.[fruitIngredients[index-3]]??0}
+ canAdd(index){return Number.isInteger(index)&&index>=0&&index<5&&this.phase==='playing'&&!this.paused&&!this.making&&!!this.activeCustomer()&&!!this.drink&&this.ingredientAmount(index)<(index<3?3:1)&&this.ingredientStock(index)>0}
  addIngredient(index){
   if(!this.canAdd(index))return false;
-  this.state.inventory[index+1]--;this.drink.ingredients[index]++;this.announce('Add ingredients, then mix & serve');return true;
+  if(index<3){this.state.inventory[index+1]--;this.drink.ingredients[index]++}
+  else{const fruit=fruitIngredients[index-3];this.state.pantry[fruit]--;this.drink.fruit[fruit]++}
+  this.announce('Add ingredients, then mix & serve');return true;
  }
  discard(){
   if(this.phase!=='playing'||this.paused||this.making||!this.drink)return false;
@@ -60,7 +65,7 @@ export class Simulation{
   const budget=customerBudget(this.conditions,1,this.random);
   const p={id:++this.visits,x:-18,y:213,state:'approaching',dir:'side',moving:true,tint:Math.floor(this.random()*35)-10,maxPatience:12+this.random()*7,patience:0,path:[{x:150,y:213}],bubble:null};p.patience=p.maxPatience;
   const coolChance=coolPreferenceChance(this.conditions),roll=this.random();
-  p.preference=roll<coolChance?preferences[2]:roll<coolChance+(1-coolChance)/2?preferences[0]:preferences[1];p.willing=budget>=this.price;
+  p.preference=roll<coolChance?preferences[2]:roll<coolChance+(1-coolChance)/2?preferences[0]:preferences[1];p.willing=budget>=this.price;p.order=chooseDrink(this.random);
   // Decide once on arrival: the umbrella stays with this customer for the entire visit.
   p.umbrella=this.conditions.id==='rainy'&&this.random()<.6;this.people.push(p);
  }
@@ -71,7 +76,7 @@ export class Simulation{
  }
  serve(){
   if(!this.canServe())return false;
-  const p=this.activeCustomer();this.making={customer:p.id,ingredients:[...this.drink.ingredients],elapsed:0,duration:1.25};p.bubble='…';this.announce('Mixing lemonade…');return true;
+  const p=this.activeCustomer();this.making={customer:p.id,ingredients:[...this.drink.ingredients],fruit:{...this.drink.fruit},elapsed:0,duration:1.25};p.bubble='…';this.announce('Mixing lemonade…');return true;
  }
  advance(p,dt){
   const target=p.path[0];if(!target){p.moving=false;return true}
@@ -92,7 +97,7 @@ export class Simulation{
     else{p.state='queuing';this.queue.push(p)}
    }else if(p.state==='queuing'||p.state==='waiting'){
     const index=this.queue.indexOf(p),target={x:240,y:204+index*26};
-    if(Math.hypot(p.x-target.x,p.y-target.y)>.5){p.state='queuing';p.path=p.x<230&&Math.abs(p.y-target.y)>.5?[{x:p.x,y:target.y}]:[target];if(this.advance(p,dt)&&Math.hypot(p.x-target.x,p.y-target.y)<.5)p.state='waiting'}else{p.state='waiting';p.moving=false;p.dir='up';p.bubble=this.making?.customer===p.id?'…':`taste-${p.preference.id}`}
+    if(Math.hypot(p.x-target.x,p.y-target.y)>.5){p.state='queuing';p.path=p.x<230&&Math.abs(p.y-target.y)>.5?[{x:p.x,y:target.y}]:[target];if(this.advance(p,dt)&&Math.hypot(p.x-target.x,p.y-target.y)<.5)p.state='waiting'}else{p.state='waiting';p.moving=false;p.dir='up';p.bubble=this.making?.customer===p.id?'…':p.order==='pink'?'drink-pink':p.order==='watermelon'?'drink-watermelon':`taste-${p.preference.id}`}
     // Patience runs while queuing too, but is held during an active order.
     if(this.making?.customer!==p.id)p.patience-=dt;
     if(p.patience<=0){this.stats.impatient++;this.leave(p,'!');this.announce('A customer got tired of waiting')}
@@ -104,13 +109,17 @@ export class Simulation{
    if(this.making.elapsed>=this.making.duration){
     const p=this.queue.find(p=>p.id===this.making.customer);
     if(p&&this.drink){
-     const ingredients=this.making.ingredients,taste=evaluateTaste(ingredients,p.preference,this.price);
+     const ingredients=this.making.ingredients,fruit=this.making.fruit,taste=evaluateTaste(ingredients,p.preference,this.price);
+     if(!matchesDrink({fruit},p.order)){
+      this.drink=null;this.making=null;this.stats.wasted++;this.stats.wrongDrinks++;p.feedback='Wrong drink';p.rating='unhappy';this.leave(p,'×');this.announce('Wrong drink — no payment');
+     }else{
      this.drink=null;
      this.state.cash+=this.price+taste.tip;this.stats.sold++;this.state.totalSold++;this.stats.revenue+=this.price;this.stats.tips+=taste.tip;
      this.stats.profit=this.stats.revenue+this.stats.tips-this.stats.cost;
      p.feedback=taste.feedback;p.rating=taste.rating;
-     this.events.push({type:'sale',id:p.id,x:p.x,y:p.y,price:this.price,tip:taste.tip,ingredients:[...ingredients]});
+     this.events.push({type:'sale',id:p.id,x:p.x,y:p.y,price:this.price,tip:taste.tip,ingredients:[...ingredients],fruit:{...fruit}});
      this.leave(p,taste.rating==='delighted'?'♥':taste.rating==='okay'?':)':':(');this.announce(taste.feedback+(taste.tip?` · $${(taste.tip/100).toFixed(2)} tip`:''));
+     }
     }
     this.making=null;
    }

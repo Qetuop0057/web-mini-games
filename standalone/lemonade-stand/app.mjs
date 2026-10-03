@@ -1,3 +1,4 @@
+import {drinks} from './drinks.mjs';
 import {scene,homeScene,marketScene} from './art.mjs';
 import {ingredientIcon,mixingScene} from './mixing-art.mjs';
 import {Simulation,capacity,DAY_LENGTH} from './simulation.mjs';
@@ -21,7 +22,7 @@ function setup(){
 }
 $('#setup').addEventListener('submit',e=>{e.preventDefault();try{game.open(Math.round(Number($('#price').value)*100));effects=[];drops=[];delivery=null;view='stand';$('#scene').focus();tone(440)}catch(error){$('#error').textContent=error.message}});
 function serve(){if(game.serve())tone(330)}$('#serve').addEventListener('click',serve);
-const ingredientIds=['lemon','sugar','ice'];
+const ingredientIds=['lemon','sugar','ice','strawberry','watermelon'];
 for(const [index,id] of ingredientIds.entries()){
  ingredientIcon($('#'+id+'-icon').getContext('2d'),index,0,0,2);
  $('#add-'+id).addEventListener('click',()=>addIngredient(index));
@@ -31,7 +32,7 @@ $('#end-day').addEventListener('click',()=>{if(game.finishDay()){effects=[];drop
 $('#discard').addEventListener('click',()=>{if(game.discard()){drops=[];tone(180,.1)}});
 window.addEventListener('keydown',e=>{
  if(game.phase!=='playing'||/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))return;
- if(['Digit1','Digit2','Digit3'].includes(e.code)){e.preventDefault();if(!e.repeat)addIngredient(Number(e.code.slice(-1))-1)}
+ if(['Digit1','Digit2','Digit3','Digit4','Digit5'].includes(e.code)){e.preventDefault();if(!e.repeat)addIngredient(Number(e.code.slice(-1))-1)}
  if(e.code==='Space'&&e.target.tagName!=='BUTTON'){e.preventDefault();if(!e.repeat)serve()}
  if(e.code==='Escape')pause();
 });
@@ -134,8 +135,8 @@ $('#market-form').addEventListener('submit',e=>{e.preventDefault();try{const cos
 $('#market-map').addEventListener('click',()=>changeView('map'));$('#market-home').addEventListener('click',()=>changeView('home'));
 function renderRecipePage(direction){
  const page=bookRecipes[bookPage],labels=tasteLabels(page.quantities);
- $('#recipe-name').textContent=page.name;$('#recipe-flavor').textContent=labels.flavor;$('#recipe-cooling').textContent=labels.ice;
- $('#recipe-details').replaceChildren(...[['Cups',1],['Lemons',page.quantities[0]],['Sugar',page.quantities[1]],['Ice',page.quantities[2]]].flatMap(([name,count])=>{const term=document.createElement('dt'),value=document.createElement('dd');term.textContent=name;value.textContent=count;return [term,value]}));
+ $('#recipe-name').textContent=page.name;$('#recipe-liquid').setAttribute('fill',page.fruit==='strawberry'?'#ef99a3':page.fruit==='watermelon'?'#ef806b':'#f3d45a');$('#recipe-flavor').textContent=labels.flavor;$('#recipe-cooling').textContent=labels.ice;
+ $('#recipe-details').replaceChildren(...[['Cups',1],['Lemons',page.quantities[0]],['Sugar',page.quantities[1]],['Ice',page.quantities[2]],...(page.fruit?[[page.fruit==='strawberry'?'Strawberry':'Watermelon',1]]:[])].flatMap(([name,count])=>{const term=document.createElement('dt'),value=document.createElement('dd');term.textContent=name;value.textContent=count;return [term,value]}));
  function options(selector,values,active){$(selector).replaceChildren(...values.map(label=>{const span=document.createElement('span');span.textContent=label;span.className=label===active?'selected':'';return span}))}
  options('#flavor-options',['Very sour','Sour','Balanced','Sweet','Very sweet'],labels.flavor);
  options('#ice-options',['Light ice','Regular ice','Ice cold'],labels.ice);
@@ -182,19 +183,19 @@ function sync(){
  if(shownPhase!==game.phase){shownPhase=game.phase;$('#pause').textContent='Pause';if(game.phase==='setup')view='home';syncView();
   if(game.phase==='setup')setup();
   if(game.phase==='summary'){
-   const s=game.stats;$('#results').replaceChildren(...[['Cups sold',s.sold],['Sales revenue',money(s.revenue)],['Tips',money(s.tips)],['Cups discarded',s.wasted],['Supplies',money(s.cost)],['Net cash change',money(s.profit)],['Price rejected',s.rejected],['Walked away',s.impatient+s.missed]].map(([label,value])=>{const div=document.createElement('div');div.textContent=label;const strong=document.createElement('strong');strong.textContent=value;div.append(strong);return div}));tone(659,.3);$('#next').focus();
+   const s=game.stats;$('#results').replaceChildren(...[['Cups sold',s.sold],['Sales revenue',money(s.revenue)],['Tips',money(s.tips)],['Cups wasted',s.wasted],['Wrong drinks',s.wrongDrinks],['Supplies',money(s.cost)],['Net cash change',money(s.profit)],['Price rejected',s.rejected],['Walked away',s.impatient+s.missed]].map(([label,value])=>{const div=document.createElement('div');div.textContent=label;const strong=document.createElement('strong');strong.textContent=value;div.append(strong);return div}));tone(659,.3);$('#next').focus();
   }
  }
 }
 function syncCounter(){
  if(game.phase!=='playing')return;
  const customer=game.activeCustomer(),amounts=game.drink?.ingredients||[0,0,0];
- $('#order-request').textContent=customer?{sour:'Something sour, please!',sweet:'Sweet lemonade, please!',cool:'Make it ice cold!'}[customer.preference.id]:'Waiting for a customer';
+ $('#order-request').textContent=customer?drinks[customer.order||'lemonade'].name+' · '+{sour:'Something sour, please!',sweet:'Sweet lemonade, please!',cool:'Make it ice cold!'}[customer.preference.id]:'Waiting for a customer';
  $('#customer-patience').hidden=!customer;$('#customer-patience').value=customer?.patience||0;$('#customer-patience').max=customer?.maxPatience||1;
  for(const [i,id] of ingredientIds.entries()){
-  $('#add-'+id).disabled=!game.canAdd(i);$('#'+id+'-stock').textContent=game.state.inventory[i+1];$('#'+id+'-count').textContent=amounts[i]+' / 3';$('#add-'+id).setAttribute('aria-label',`${id}: ${game.state.inventory[i+1]} in stock, ${amounts[i]} of 3 added`);
+  $('#add-'+id).disabled=!game.canAdd(i);$('#'+id+'-stock').textContent=game.ingredientStock(i);$('#'+id+'-count').textContent=game.ingredientAmount(i)+' / '+(i<3?3:1);$('#add-'+id).setAttribute('aria-label',`${id}: ${game.ingredientStock(i)} in stock, ${game.ingredientAmount(i)} of ${i<3?3:1} added`);
  }
- $('#mixing-stage').setAttribute('aria-label',game.drink?`Current cup: ${amounts[0]} lemon, ${amounts[1]} sugar, ${amounts[2]} ice`:'No cup prepared');
+ $('#mixing-stage').setAttribute('aria-label',game.drink?`Current cup: ${amounts[0]} lemon, ${amounts[1]} sugar, ${amounts[2]} ice, ${game.drink.fruit?.strawberry||0} strawberry, ${game.drink.fruit?.watermelon||0} watermelon`:'No cup prepared');
  $('#cup-stock').textContent=game.state.inventory[0]+' cups left';
  $('#serve').disabled=!game.canServe();$('#discard').disabled=!game.drink||game.paused||!!game.making;$('#pause').disabled=false;$('#pause').setAttribute('aria-pressed',String(game.paused));
  $('#serve').textContent=game.making?`Mixing ${Math.min(100,Math.round(game.making.elapsed/game.making.duration*100))}%`:'Mix & serve';
@@ -202,7 +203,7 @@ function syncCounter(){
  if($('#progress').textContent!==status)$('#progress').textContent=status;
 }
 function frame(timestamp){const dt=last?Math.min((timestamp-last)/1000,.1):0;last=timestamp;game.tick(dt);
- for(const event of game.events||[]){effects.push({...event,life:1.3});delivery={ingredients:event.ingredients,age:0};tone(780,.16)}if(game.events)game.events.length=0;
+ for(const event of game.events||[]){effects.push({...event,life:1.3});delivery={ingredients:event.ingredients,fruit:event.fruit,age:0};tone(780,.16)}if(game.events)game.events.length=0;
  if(!game.paused){effects=effects.map(e=>({...e,life:e.life-dt})).filter(e=>e.life>0);drops=drops.map(d=>({...d,age:d.age+dt})).filter(d=>d.age<.4);if(delivery){delivery.age+=dt;if(delivery.age>=.7)delivery=null}}
  if(game.phase==='setup'){homeTime+=dt;view==='market'?marketScene(ctx):homeScene(ctx,homeTime,game.conditions,game.state.day)}else scene(ctx,game.time,game.people,game.price,game.making?game.making.elapsed/game.making.duration:0,game.conditions,game.location);
  ctx.save();ctx.scale(2,2);ctx.font='bold 13px monospace';ctx.textAlign='center';for(const e of effects){ctx.globalAlpha=Math.min(1,e.life*2);ctx.fillStyle='#fff6c9';ctx.fillText('+'+money(e.price),e.x,e.y-50-(1.3-e.life)*24);if(e.tip){ctx.fillStyle='#ffe077';ctx.fillText('+'+money(e.tip)+' tip',e.x,e.y-35-(1.3-e.life)*24)}}ctx.restore();if(game.phase==='playing')mixingScene($('#mixing-stage').getContext('2d'),game.drink,game.making,game.time,drops,delivery);sync();requestAnimationFrame(frame)

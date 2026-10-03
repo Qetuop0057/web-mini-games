@@ -69,10 +69,16 @@ Keyboard: 1 = lemon, 2 = sugar, 3 = ice; Space mixes/serves when not focused on 
 
 The market is static: one fruit stall, one dry-goods stall and a vending machine entrance. Clicking a stall or its wooden sign opens only that stall's purchase dialog. Fruit: lemons, watermelon, strawberries and oranges. Dry goods: sugar, milk, ice and paper cups. The vending machine opens a Coming soon panel and cannot charge money. Escape or the close button returns to the market.
 
-Prices for lemons, sugar, ice and paper cups retain the existing daily market prices. New fruit/milk prices are fixed for now: watermelon $0.80, strawberries $0.50, oranges $0.40, milk $0.60 per unit. Purchases validate all quantities and cash before changing any stock, and count toward daily supply expenses. The new fruit and milk are carried in a separate pantry and shown in the home inventory panel; they are reserved for later drinks and do not alter current lemonade mixing. New sessions clear the pantry; next-day transitions retain it.
+Prices for lemons, sugar, ice and paper cups retain the existing daily market prices. New fruit/milk prices are fixed for now: watermelon $0.80, strawberries $0.50, oranges $0.40, milk $0.60 per unit. Purchases validate all quantities and cash before changing any stock, and count toward daily supply expenses. The new fruit and milk are carried in a separate pantry and shown in the home inventory panel; strawberry and watermelon are live ingredients for Pink lemonade and Watermelon lemonade; oranges and milk remain reserved for later drinks. New sessions clear the pantry; next-day transitions retain it.
 
 Original market PNGs, complete credit/source notices and CC BY-SA 3.0 license are included in assets; the Market screen links to the credits. Background arrangement and crops remain shared under CC BY-SA 3.0. No market characters or shopping animations are rendered.
 
 ## Shared game frame
 
 Home, Market, the selling scene and all dialogs share one viewport-sized game frame. The HUD row is fixed and the scene fills the remaining space. Market navigation and the mixing counter are positioned inside the frame, so changing views or opening/closing the stand cannot change its outer size.
+
+## Fruit lemonade orders
+
+Customers independently request classic lemonade (60%), Pink lemonade (20%) or Watermelon lemonade (20%). Pink/watermelon orders show a strawberry/watermelon icon in their speech bubble. All drinks use the selected lemon/sugar/ice portions; Pink requires exactly one strawberry and no watermelon, and Watermelon requires exactly one watermelon and no strawberry. Classic lemonade must contain neither fruit. Fruit comes from Market pantry stock and debits immediately when added, capped at one of each per cup. Keys 4/5 add strawberry/watermelon; the left shelf offers all five ingredient icons.
+
+After mixing, a wrong drink is consumed and counted once as waste and a wrong order. That customer leaves without payment, tips, a sale or unlock progress. Correct drinks use the existing price and sour/sweet/cold tip rules. Discard, pause and early closing also preserve spent fruit without refunds. Fruit stock carries across days; new-game resets clear fruit stock. The recipe book includes both drinks, and the glass becomes pink or watermelon red when fruit is added.
