@@ -64,4 +64,9 @@ If a customer leaves, the unfinished cup stays for the next customer. Discard cu
 Keyboard: 1 = lemon, 2 = sugar, 3 = ice; Space mixes/serves when not focused on a button. Buttons also work with Tab and Enter/Space. Escape pauses. Changing tabs pauses automatically.
 
 ## Market scene
-Market opens a separate paved square with LPC Bazaar shop-stall sprites, vendors and strolling shoppers. A purchase counter beneath the scene shows all four supply quantities, unit prices and owned stock. Buying and browsing use the same inventory/cash transactions and do not advance the simulated day. Original market PNGs, complete art credit/source notices and CC BY-SA 3.0 license are included in assets; the Market screen links to the credits.
+
+The market is static: one fruit stall, one dry-goods stall and a vending machine entrance. Clicking a stall or its wooden sign opens only that stall's purchase dialog. Fruit: lemons, watermelon, strawberries and oranges. Dry goods: sugar, milk, ice and paper cups. The vending machine opens a Coming soon panel and cannot charge money. Escape or the close button returns to the market.
+
+Prices for lemons, sugar, ice and paper cups retain the existing daily market prices. New fruit/milk prices are fixed for now: watermelon $0.80, strawberries $0.50, oranges $0.40, milk $0.60 per unit. Purchases validate all quantities and cash before changing any stock, and count toward daily supply expenses. The new fruit and milk are carried in a separate pantry and shown in the home inventory panel; they are reserved for later drinks and do not alter current lemonade mixing. New sessions clear the pantry; next-day transitions retain it.
+
+Original market PNGs, complete credit/source notices and CC BY-SA 3.0 license are included in assets; the Market screen links to the credits. Background arrangement and crops remain shared under CC BY-SA 3.0. No market characters or shopping animations are rendered.

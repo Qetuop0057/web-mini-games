@@ -1,3 +1,4 @@
+import {marketQuote,stallProducts} from './market.mjs';
 import {getLocation,unlocked} from './locations.mjs';
 import {newGame,weather} from './engine.mjs';
 import {preferences,evaluateTaste} from './taste.mjs';
@@ -18,6 +19,16 @@ export class Simulation{
   if(order.length!==4||order.some(n=>!Number.isInteger(n)||n<0||n>1000))throw Error('Choose whole supply quantities from 0 to 1000.');
   const cost=order.reduce((sum,n,i)=>sum+n*this.conditions.prices[i],0);if(cost>this.state.cash)throw Error('Not enough cash for these supplies.');
   this.state={...this.state,cash:this.state.cash-cost,inventory:this.state.inventory.map((n,i)=>n+order[i])};this.dailySupplyCost+=cost;return cost;
+ }
+ buyMarket(stallId,order){
+  if(this.phase!=='setup')throw Error('Visit the market before opening.');
+  const cost=marketQuote(stallId,order,this.conditions);if(cost>this.state.cash)throw Error('Not enough cash for these supplies.');
+  const inventory=[...this.state.inventory],pantry={...this.state.pantry};
+  for(const product of stallProducts(stallId)){
+   const count=order[product.id]??0;
+   if(product.inventoryIndex===undefined)pantry[product.id]+=count;else inventory[product.inventoryIndex]+=count;
+  }
+  this.state={...this.state,cash:this.state.cash-cost,inventory,pantry};this.dailySupplyCost+=cost;return cost;
  }
  open(price){
   if(this.phase!=='setup')throw Error('The stand is already open.');

@@ -153,7 +153,7 @@ export function homeScene(ctx,time,conditions,day=1){
 const marketStalls=['red','blue'].map(color=>{const image=new Image();image.src=`assets/market-${color}.png`;return image});
 // LPC Bazaar artwork and this market-background arrangement: CC BY-SA 3.0.
 // Original authors, source links and the full license are included in assets/.
-export function marketScene(ctx,time){
+export function marketScene(ctx){
  ctx.save();ctx.scale(2,2);ctx.imageSmoothingEnabled=false;
  const rect=(x,y,w,h,c)=>{ctx.fillStyle=c;ctx.fillRect(x,y,w,h)};
  const tile=(n,x,y,size=24)=>{if(town.complete&&town.naturalWidth)ctx.drawImage(town,(n%12)*16,Math.floor(n/12)*16,16,16,x,y,size,size)};
@@ -162,17 +162,32 @@ export function marketScene(ctx,time){
  // A green edge borders the paved market square.
  for(let x=0;x<480;x+=24){tile(0,x,0);tile(0,x,276)}
  for(const x of [14,432]){tile(5,x,8,34);tile(5,x,240,34)}
- // Crop complete stall variants from the original atlas without altering it.
- const positions=[[33,28,0,0],[137,28,1,72],[241,28,0,72],[345,28,1,0]];
- for(const [x,y,color,sx] of positions){
-  const image=marketStalls[color];rect(x+4,y+132,87,10,'#34443e38');
-  if(image.complete&&image.naturalWidth)ctx.drawImage(image,sx,0,56,96,x,y,84,144);
+ // Two static stalls, each with a clickable hotspot in app.mjs.
+ for(const [x,color] of [[34,0],[190,1]]){
+  const image=marketStalls[color];rect(x+3,211,108,11,'#34443e38');
+  if(image.complete&&image.naturalWidth)ctx.drawImage(image,0,0,56,96,x,30,112,192);
+  // Replace the generic shelf contents with this stall's actual goods.
+  rect(x+7,166,98,34,'#64482e');rect(x+8,198,96,4,'#ad8152');
  }
- // Vendors and shoppers use the same character sprites as the rest of town.
- for(const [id,x,y,tint] of [[1,77,137,0],[2,181,137,14],[3,285,137,-10],[4,389,137,24]])person(ctx,{id,x,y,dir:'down',moving:false,tint},time);
- person(ctx,{x:175+Math.sin(time*.3)*32,y:212,dir:'side',moving:true,tint:8,flip:Math.cos(time*.3)<0},time);
- person(ctx,{x:316+Math.sin(time*.25+1)*28,y:245,dir:'side',moving:true,tint:22,flip:Math.cos(time*.25+1)<0},time);
- // Shopping bags beside the walkway.
- rect(60,203,18,12,'#b89762');rect(63,198,12,6,'#d4ba7c');rect(404,217,18,12,'#b89762');rect(407,212,12,6,'#d4ba7c');
+ // Fruit crates: lemons, watermelon, strawberries and oranges.
+ const fruitX=44;
+ for(let i=0;i<4;i++){const x=fruitX+i*23;rect(x,173,21,23,'#b78c53');rect(x+2,175,17,17,'#6d5436')}
+ rect(47,179,13,7,'#f5c743');rect(50,176,8,13,'#ffdf65');rect(56,175,4,3,'#73a159');
+ rect(70,177,15,14,'#507e40');rect(72,178,2,11,'#a0bf64');rect(78,178,2,11,'#a0bf64');rect(73,176,8,1,'#71944b');
+ rect(92,179,13,5,'#d45848');rect(94,184,9,5,'#dd6855');rect(97,189,3,2,'#dd6855');rect(94,176,9,4,'#6c994f');rect(96,182,2,2,'#f6d29c');rect(101,185,2,2,'#f6d29c');
+ rect(118,178,12,13,'#eb963b');rect(116,181,16,7,'#eb963b');rect(119,180,3,3,'#ffc06b');rect(124,175,5,3,'#6c994f');
+ // Dry goods: sugar sacks, milk bottles, an ice box and a stack of cups.
+ rect(200,175,18,22,'#e9d6a6');rect(203,171,12,6,'#b8aa80');rect(204,181,10,7,'#fff7df');
+ rect(226,174,13,22,'#d9e8dd');rect(229,168,7,6,'#7795a3');rect(228,184,9,8,'#83a3b3');
+ rect(245,182,24,15,'#7da7b1');rect(247,179,20,6,'#c8e9e7');rect(250,176,7,8,'#e4f8ed');rect(260,176,6,7,'#c6e6ef');
+ rect(279,176,12,20,'#f4ebd3');for(let y=177;y<197;y+=4)rect(278,y,14,2,'#d5caad');
+ // Vending machine entrance; transactions are deliberately not enabled yet.
+ rect(362,211,70,11,'#34443e38');rect(363,86,65,129,'#665342');rect(367,90,57,121,'#ba6f55');rect(370,95,39,78,'#455653');rect(374,99,31,69,'#85a5a0');
+ for(const y of [106,133])for(const x of [378,391]){rect(x,y,8,17,'#e8d8a4');rect(x,y+5,8,6,x===378?'#d98954':'#80a8bd');rect(x+1,y,6,2,'#fff3d1')}
+ rect(414,106,6,18,'#e1c18c');rect(415,110,4,2,'#6e5944');rect(415,116,4,2,'#6e5944');rect(415,128,4,13,'#544b42');rect(374,181,41,20,'#594d43');rect(378,184,33,9,'#352f2b');
+ // Wood signs label the destinations without extra people or motion.
+ for(const [x,w,label] of [[34,112,'FRUIT'],[190,112,'DRY GOODS'],[357,78,'VENDING']]){
+  rect(x,235,w,23,'#755539');rect(x+3,238,w-6,17,'#dfb57e');ctx.fillStyle='#493c2d';ctx.font='bold 11px monospace';ctx.textAlign='center';ctx.fillText(label,x+w/2,250);
+ }
  ctx.restore();
 }
