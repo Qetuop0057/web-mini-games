@@ -149,3 +149,30 @@ export function homeScene(ctx,time,conditions,day=1){
  }else if(conditions.id==='heatwave')rect(0,0,480,300,'#ffd77919');
  ctx.restore();
 }
+
+const marketStalls=['red','blue'].map(color=>{const image=new Image();image.src=`assets/market-${color}.png`;return image});
+// LPC Bazaar artwork and this market-background arrangement: CC BY-SA 3.0.
+// Original authors, source links and the full license are included in assets/.
+export function marketScene(ctx,time){
+ ctx.save();ctx.scale(2,2);ctx.imageSmoothingEnabled=false;
+ const rect=(x,y,w,h,c)=>{ctx.fillStyle=c;ctx.fillRect(x,y,w,h)};
+ const tile=(n,x,y,size=24)=>{if(town.complete&&town.naturalWidth)ctx.drawImage(town,(n%12)*16,Math.floor(n/12)*16,16,16,x,y,size,size)};
+ rect(0,0,480,300,'#9ba7a0');
+ for(let y=0;y<300;y+=24)for(let x=0;x<480;x+=24)tile(126,x,y);
+ // A green edge borders the paved market square.
+ for(let x=0;x<480;x+=24){tile(0,x,0);tile(0,x,276)}
+ for(const x of [14,432]){tile(5,x,8,34);tile(5,x,240,34)}
+ // Crop complete stall variants from the original atlas without altering it.
+ const positions=[[33,28,0,0],[137,28,1,72],[241,28,0,72],[345,28,1,0]];
+ for(const [x,y,color,sx] of positions){
+  const image=marketStalls[color];rect(x+4,y+132,87,10,'#34443e38');
+  if(image.complete&&image.naturalWidth)ctx.drawImage(image,sx,0,56,96,x,y,84,144);
+ }
+ // Vendors and shoppers use the same character sprites as the rest of town.
+ for(const [id,x,y,tint] of [[1,77,137,0],[2,181,137,14],[3,285,137,-10],[4,389,137,24]])person(ctx,{id,x,y,dir:'down',moving:false,tint},time);
+ person(ctx,{x:175+Math.sin(time*.3)*32,y:212,dir:'side',moving:true,tint:8,flip:Math.cos(time*.3)<0},time);
+ person(ctx,{x:316+Math.sin(time*.25+1)*28,y:245,dir:'side',moving:true,tint:22,flip:Math.cos(time*.25+1)<0},time);
+ // Shopping bags beside the walkway.
+ rect(60,203,18,12,'#b89762');rect(63,198,12,6,'#d4ba7c');rect(404,217,18,12,'#b89762');rect(407,212,12,6,'#d4ba7c');
+ ctx.restore();
+}

@@ -1,4 +1,4 @@
-import {scene,homeScene} from './art.mjs';
+import {scene,homeScene,marketScene} from './art.mjs';
 import {ingredientIcon,mixingScene} from './mixing-art.mjs';
 import {Simulation,capacity,DAY_LENGTH} from './simulation.mjs';
 import {money,names} from './engine.mjs';
@@ -103,7 +103,7 @@ function marketOrder(){return [...document.querySelectorAll('#market-supplies in
 function marketCost(){const cost=marketOrder().reduce((sum,n,i)=>sum+n*game.conditions.prices[i],0);$('#market-cost').textContent=money(cost);return cost}
 function renderMarket(){
  $('#market-message').textContent='';
- $('#market-supplies').replaceChildren(...names.map((name,i)=>{const label=document.createElement('label');label.className='supply';const span=document.createElement('span');span.textContent=`${name} · ${money(game.conditions.prices[i])} each · ${game.state.inventory[i]} left`;const input=document.createElement('input');Object.assign(input,{type:'number',min:'0',max:'1000',step:'1',value:'0',required:true});input.setAttribute('aria-label','Buy '+name.toLowerCase());input.addEventListener('input',marketCost);label.append(span,input);return label}));marketCost();
+ $('#market-supplies').replaceChildren(...names.map((name,i)=>{const label=document.createElement('label');label.className='supply';const span=document.createElement('span');span.className='market-item-name';span.textContent=name;const price=document.createElement('span');price.className='market-item-price';price.textContent=money(game.conditions.prices[i])+' each';const stock=document.createElement('span');stock.className='market-item-stock';stock.textContent=game.state.inventory[i]+' in stock';const input=document.createElement('input');Object.assign(input,{type:'number',min:'0',max:'1000',step:'1',value:'0',required:true});input.setAttribute('aria-label','Buy '+name.toLowerCase());input.addEventListener('input',marketCost);label.append(span,price,stock,input);return label}));marketCost();
 }
 $('#market-form').addEventListener('submit',e=>{e.preventDefault();try{const cost=game.buySupplies(marketOrder());renderMarket();$('#market-message').textContent=cost?`Supplies added · ${money(cost)}`:'Choose supplies to buy';tone(440)}catch(error){$('#market-message').textContent=error.message}});
 $('#market-map').addEventListener('click',()=>changeView('map'));$('#market-home').addEventListener('click',()=>changeView('home'));
@@ -135,19 +135,20 @@ $('#back-home').addEventListener('click',()=>changeView('home'));
 $('#close-recipe').addEventListener('click',()=>{changeView('home');$('#show-recipe').focus()});
 function syncView(){
  const atHome=game.phase==='setup';
- $('#overlay').hidden=game.phase==='playing'||(atHome&&view==='home');
+ $('#overlay').hidden=game.phase==='playing'||(atHome&&(view==='home'||view==='market'));
  $('#tv-view').hidden=!atHome||view!=='tv';$('#show-tv').hidden=!atHome||view!=='home';
  $('#market-view').hidden=!atHome||view!=='market';
  $('#inventory-view').hidden=!atHome||view!=='inventory';$('#show-inventory').hidden=!atHome||view!=='home';
  $('#map-view').hidden=!atHome||view!=='map';$('#map-sign').hidden=!atHome||view!=='home';$('#show-recipe').hidden=!atHome||view!=='home';positionHomeHotspots();
  $('#setup').hidden=!atHome||view!=='prepare';$('#recipe-view').hidden=!atHome||view!=='recipe';$('#summary').hidden=game.phase!=='summary';
- $('#home-actions').hidden=!atHome;$('#play-actions').hidden=game.phase!=='playing';$('#clock').hidden=game.phase!=='playing';$('#banner').hidden=game.phase!=='summary';
+ $('#home-actions').hidden=!atHome||view==='market';$('#play-actions').hidden=game.phase!=='playing';$('#clock').hidden=game.phase!=='playing';$('#banner').hidden=game.phase!=='summary';
  $('#scene').parentElement.classList.toggle('is-playing',game.phase==='playing');
- $('#scene').setAttribute('aria-label',atHome?'Your home, with a lemonade stand in the yard to the right':'Street scene with a lemonade stand and customers');
+ $('#scene').parentElement.classList.toggle('is-market',atHome&&view==='market');
+ $('#scene').setAttribute('aria-label',atHome?(view==='market'?'Market square with shops, vendors and shoppers':'Your home, with a lemonade stand in the yard to the right'):'Street scene with a lemonade stand and customers');
  $('#home-forecast').textContent=`Tomorrow: ${game.tomorrow.icon} ${game.tomorrow.label} · ${game.tomorrow.temperature}°F`;
 }
 function sync(){
- $('#location-name').textContent=game.phase==='setup'?'Home':getLocation(game.location).name;$('#cash').textContent=money(game.state.cash);$('#cups').textContent=game.state.inventory[0];$('#weather').textContent=`${game.conditions.icon} ${game.conditions.label} · ${game.conditions.temperature}°F`;
+ $('#location-name').textContent=game.phase==='setup'?(view==='market'?'Market':'Home'):getLocation(game.location).name;$('#cash').textContent=money(game.state.cash);$('#cups').textContent=game.state.inventory[0];$('#weather').textContent=`${game.conditions.icon} ${game.conditions.label} · ${game.conditions.temperature}°F`;
  const seconds=Math.ceil(game.phase==='playing'?game.remaining:DAY_LENGTH);$('#clock').textContent=`${Math.floor(seconds/60).toString().padStart(2,'0')}:${(seconds%60).toString().padStart(2,'0')}`;
  $('#banner').textContent=game.phase==='setup'?'Home':game.paused?'Paused':game.message;
  syncCounter();
@@ -176,7 +177,7 @@ function syncCounter(){
 function frame(timestamp){const dt=last?Math.min((timestamp-last)/1000,.1):0;last=timestamp;game.tick(dt);
  for(const event of game.events||[]){effects.push({...event,life:1.3});delivery={ingredients:event.ingredients,age:0};tone(780,.16)}if(game.events)game.events.length=0;
  if(!game.paused){effects=effects.map(e=>({...e,life:e.life-dt})).filter(e=>e.life>0);drops=drops.map(d=>({...d,age:d.age+dt})).filter(d=>d.age<.4);if(delivery){delivery.age+=dt;if(delivery.age>=.7)delivery=null}}
- if(game.phase==='setup'){homeTime+=dt;homeScene(ctx,homeTime,game.conditions,game.state.day)}else scene(ctx,game.time,game.people,game.price,game.making?game.making.elapsed/game.making.duration:0,game.conditions,game.location);
+ if(game.phase==='setup'){homeTime+=dt;view==='market'?marketScene(ctx,homeTime):homeScene(ctx,homeTime,game.conditions,game.state.day)}else scene(ctx,game.time,game.people,game.price,game.making?game.making.elapsed/game.making.duration:0,game.conditions,game.location);
  ctx.save();ctx.scale(2,2);ctx.font='bold 13px monospace';ctx.textAlign='center';for(const e of effects){ctx.globalAlpha=Math.min(1,e.life*2);ctx.fillStyle='#fff6c9';ctx.fillText('+'+money(e.price),e.x,e.y-50-(1.3-e.life)*24);if(e.tip){ctx.fillStyle='#ffe077';ctx.fillText('+'+money(e.tip)+' tip',e.x,e.y-35-(1.3-e.life)*24)}}ctx.restore();if(game.phase==='playing')mixingScene($('#mixing-stage').getContext('2d'),game.drink,game.making,game.time,drops,delivery);sync();requestAnimationFrame(frame)
 }
 requestAnimationFrame(frame);

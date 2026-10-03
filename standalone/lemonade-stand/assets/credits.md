@@ -9,3 +9,7 @@
 - Lemonade stand, pitcher, basket, UI and transaction effects: original artwork drawn in art.mjs.
 
 No code or assets copied from the researched GitHub game projects.
+
+- Market stalls: LPC Bazaar Rework 1.0-1, CC BY-SA 3.0 or later.
+  https://opengameart.org/content/lpc-bazaar-rework
+  Authors and sources are listed in market-credits.txt and market-sources.md; full license in market-license.txt. Original PNGs unchanged. Market-background arrangement/scaling/crops and resulting artwork are shared under CC BY-SA 3.0.

@@ -62,3 +62,6 @@ Paper cups and portions are charged to inventory immediately. Each customer asks
 If a customer leaves, the unfinished cup stays for the next customer. Discard cup wastes it without a refund. An unfinished cup is also discarded at day end, and wasted cups are counted in the summary. Budget decisions use a fixed base lemonade before tasting, rather than a recipe chosen before opening. The top CUPS counter reports paper cups remaining; the home inventory panel shows the maximum possible drinks using one of each ingredient.
 
 Keyboard: 1 = lemon, 2 = sugar, 3 = ice; Space mixes/serves when not focused on a button. Buttons also work with Tab and Enter/Space. Escape pauses. Changing tabs pauses automatically.
+
+## Market scene
+Market opens a separate paved square with LPC Bazaar shop-stall sprites, vendors and strolling shoppers. A purchase counter beneath the scene shows all four supply quantities, unit prices and owned stock. Buying and browsing use the same inventory/cash transactions and do not advance the simulated day. Original market PNGs, complete art credit/source notices and CC BY-SA 3.0 license are included in assets; the Market screen links to the credits.

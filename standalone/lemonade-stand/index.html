@@ -13,7 +13,7 @@
 <div class="tv-controls"><div class="tv-knob" aria-hidden="true"></div><div class="tv-speaker" aria-hidden="true"></div><span class="tv-power" aria-hidden="true"></span><button id="tv-previous" class="tv-switch" aria-label="Previous channel" title="Previous channel">←</button></div></div>
 <div class="tv-feet" aria-hidden="true"></div>
 </section>
-<section id="market-view" class="panel" hidden><h2>Market</h2><form id="market-form"><div id="market-supplies" class="supplies"></div><div class="purchase"><span>Total</span><strong id="market-cost"></strong></div><p id="market-message" role="status"></p><button class="primary" type="submit">Buy supplies</button></form><button id="market-map" class="quiet">← Map</button><button id="market-home" class="quiet">Home</button></section>
+
 <section id="recipe-view" class="recipe-book" aria-label="Recipe book" hidden>
 <button id="close-recipe" class="book-close" aria-label="Close recipe book">×</button>
 <article id="book-page" class="book-leaves" aria-live="polite" aria-atomic="true">
@@ -24,7 +24,11 @@
 </article>
 <nav class="book-navigation" aria-label="Recipe pages"><button id="recipe-prev" aria-label="Previous recipe">←</button><span id="recipe-page-number"></span><button id="recipe-next" aria-label="Next recipe">→</button></nav>
 </section><section id="summary" class="panel" hidden><h2>Day complete</h2><div id="results" class="results"></div><button id="next" class="primary">Next day · Home</button><button id="restart" class="quiet">New game</button></section></div>
-<section id="play-actions" class="mixing-counter" aria-label="Mix lemonade" hidden>
+<section id="market-view" class="market-panel" aria-label="Market supplies" hidden>
+<div class="market-heading"><h2>Market</h2><nav aria-label="Leave market"><button id="market-map" class="quiet">← Map</button><button id="market-home" class="quiet">Home</button></nav></div>
+<form id="market-form"><div id="market-supplies" class="supplies"></div><div class="market-checkout"><div class="market-total">Total <strong id="market-cost"></strong></div><button class="primary" type="submit">Buy supplies</button></div><p id="market-message" role="status"></p></form>
+<a class="market-credit" href="assets/market-credits.txt" target="_blank" rel="noopener">Art credits</a>
+</section><section id="play-actions" class="mixing-counter" aria-label="Mix lemonade" hidden>
 <div class="order-line"><strong id="order-request">Waiting for a customer</strong><progress id="customer-patience" value="1" max="1" aria-label="Customer patience" hidden></progress><button id="pause" class="quiet">Pause</button></div>
 <div class="mixing-layout"><div class="ingredient-buttons">
 <button id="add-lemon" class="ingredient-button" aria-label="Add one lemon"><canvas id="lemon-icon" width="64" height="64" aria-hidden="true"></canvas><strong>Lemon</strong><span id="lemon-stock"></span><span id="lemon-count" class="portion-count">0 / 3</span></button>
