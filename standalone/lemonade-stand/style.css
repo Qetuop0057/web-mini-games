@@ -19,7 +19,6 @@
 
 .pointer-input .scene-hotspot:focus-visible{outline:none}
 
-.tv-hotspot svg{display:block;width:73%;height:73%;margin:13.5%;overflow:visible;filter:drop-shadow(0 3px 0 #527c4644)}
 .television{position:relative;width:min(680px,100%);padding-top:30px;max-height:100%;flex-shrink:0;color:#fff8dc}
 .tv-antenna{position:absolute;top:10px;left:46%;height:24px;width:44px;border-bottom:7px solid #5a4234;border-radius:50%}
 .tv-antenna:before,.tv-antenna:after{content:"";position:absolute;bottom:4px;width:3px;height:31px;background:#544d48;transform-origin:bottom}

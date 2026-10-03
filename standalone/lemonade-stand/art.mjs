@@ -102,7 +102,18 @@ export function homeScene(ctx,time,conditions,day=1){
  for(let i=0;i<10;i++){const x=66+i*8,y=112-i*5,w=186-i*16;rect(x,y,w,6,i%2?'#ad644e':'#bd7454')}
  rect(65,114,188,5,'#715840');
  for(const x of [95,189]){
-  rect(x-3,134,34,38,'#ab7e53');rect(x,137,28,29,'#5d8b9c');rect(x+3,140,10,10,'#b2d3d3');rect(x+15,140,10,10,'#b2d3d3');rect(x+13,137,3,29,'#dfc494');rect(x,151,28,3,'#dfc494');rect(x-5,170,38,5,'#8f7555');
+  rect(x-3,134,34,38,'#ab7e53');
+  if(x===95){
+   // The TV sits inside the dark room; glass and the window frame cover it.
+   rect(x,137,28,29,'#454d48');rect(x+2,139,24,26,'#62645a');
+   ctx.strokeStyle='#514c42';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x+12,149);ctx.lineTo(x+7,143);ctx.moveTo(x+14,149);ctx.lineTo(x+20,142);ctx.stroke();
+   rect(x+3,149,23,16,'#755f49');rect(x+5,151,15,11,'#7baca5');rect(x+6,152,13,1,'#a7c9b7');rect(x+22,152,2,2,'#c4b48d');rect(x+22,157,2,4,'#514b40');
+   // Curtains and reflections keep the television behind the house facade.
+   rect(x,137,3,29,'#6e7f6d');rect(x+25,137,3,29,'#6e7f6d');rect(x,137,28,29,'#a9c9d222');rect(x+4,140,7,2,'#c4d8d04d');rect(x+4,142,2,4,'#c4d8d04d');
+  }else{
+   rect(x,137,28,29,'#5d8b9c');rect(x+3,140,10,10,'#b2d3d3');rect(x+15,140,10,10,'#b2d3d3');
+  }
+  rect(x+13,137,3,29,'#dfc494');rect(x,151,28,3,'#dfc494');rect(x,166,28,3,'#dfc494');rect(x-5,170,38,5,'#8f7555');
  }
  rect(133,153,31,54,'#795c41');rect(137,157,23,45,'#aa7c4b');rect(153,181,3,3,'#f2d382');rect(129,206,39,6,'#c4b595');
  person(ctx,{x:151,y:236,dir:'down',moving:false,tint:0},time);
