@@ -72,3 +72,7 @@ The market is static: one fruit stall, one dry-goods stall and a vending machine
 Prices for lemons, sugar, ice and paper cups retain the existing daily market prices. New fruit/milk prices are fixed for now: watermelon $0.80, strawberries $0.50, oranges $0.40, milk $0.60 per unit. Purchases validate all quantities and cash before changing any stock, and count toward daily supply expenses. The new fruit and milk are carried in a separate pantry and shown in the home inventory panel; they are reserved for later drinks and do not alter current lemonade mixing. New sessions clear the pantry; next-day transitions retain it.
 
 Original market PNGs, complete credit/source notices and CC BY-SA 3.0 license are included in assets; the Market screen links to the credits. Background arrangement and crops remain shared under CC BY-SA 3.0. No market characters or shopping animations are rendered.
+
+## Shared game frame
+
+Home, Market, the selling scene and all dialogs share one viewport-sized game frame. The HUD row is fixed and the scene fills the remaining space. Market navigation and the mixing counter are positioned inside the frame, so changing views or opening/closing the stand cannot change its outer size.
