@@ -26,7 +26,7 @@ function sync(){
  if(shownPhase!==game.phase){shownPhase=game.phase;$('#overlay').hidden=game.phase==='playing';$('#setup').hidden=game.phase!=='setup';$('#summary').hidden=game.phase!=='summary';$('#pause').textContent='Pause';
   if(game.phase==='setup')setup();
   if(game.phase==='summary'){
-   const s=game.stats;$('#results').replaceChildren(...[['Cups sold',s.sold],['Revenue',money(s.revenue)],['Supplies',money(s.cost)],['Net cash change',money(s.profit)],['Price rejected',s.rejected],['Walked away',s.impatient+s.missed]].map(([label,value])=>{const div=document.createElement('div');div.textContent=label;const strong=document.createElement('strong');strong.textContent=value;div.append(strong);return div}));tone(659,.3);$('#next').focus();
+   const s=game.stats;$('#results').replaceChildren(...[['Cups sold',s.sold],['Sales revenue',money(s.revenue)],['Tips',money(s.tips)],['Supplies',money(s.cost)],['Net cash change',money(s.profit)],['Price rejected',s.rejected],['Walked away',s.impatient+s.missed]].map(([label,value])=>{const div=document.createElement('div');div.textContent=label;const strong=document.createElement('strong');strong.textContent=value;div.append(strong);return div}));tone(659,.3);$('#next').focus();
   }
  }
 }
@@ -34,6 +34,6 @@ function frame(timestamp){const dt=last?Math.min((timestamp-last)/1000,.1):0;las
  for(const event of game.events||[]){effects.push({...event,life:1.3});tone(780,.16)}if(game.events)game.events.length=0;
  if(!game.paused)effects=effects.map(e=>({...e,life:e.life-dt})).filter(e=>e.life>0);
  scene(ctx,game.time,game.people,game.price,game.making?game.making.elapsed/game.making.duration:0);
- ctx.save();ctx.scale(2,2);ctx.font='bold 13px monospace';ctx.textAlign='center';for(const e of effects){ctx.globalAlpha=Math.min(1,e.life*2);ctx.fillStyle='#fff6c9';ctx.fillText('+'+money(game.price),e.x,e.y-50-(1.3-e.life)*24)}ctx.restore();sync();requestAnimationFrame(frame)
+ ctx.save();ctx.scale(2,2);ctx.font='bold 13px monospace';ctx.textAlign='center';for(const e of effects){ctx.globalAlpha=Math.min(1,e.life*2);ctx.fillStyle='#fff6c9';ctx.fillText('+'+money(e.price),e.x,e.y-50-(1.3-e.life)*24);if(e.tip){ctx.fillStyle='#ffe077';ctx.fillText('+'+money(e.tip)+' tip',e.x,e.y-35-(1.3-e.life)*24)}}ctx.restore();sync();requestAnimationFrame(frame)
 }
 requestAnimationFrame(frame);

@@ -8,13 +8,15 @@ Customers reject expensive drinks, leave a full queue, lose patience or leave wh
 
 After closing, finish the queue, review the summary and continue to the next day. Inventory carries over. Refreshing starts a new session.
 
+Customers have equally likely sour, sweet or cool preferences. Balance is sugar minus lemons; ideal balance/ice pairs are (-1,2), (1,2) and (0,3). Manhattan distance 0 gives a 20% tip, distance 1 gives 10%, and distance 2 or more gives no tip. Tips round to cents and arrive with the completed sale. Order bubbles show a lemon, sugar cube or ice cube; feedback appears after tasting. Sales revenue and tips are separate in the daily summary; net cash change includes both. No end-of-day advice is shown.
+
 ## Run
 
 `python3 -m http.server 3001` from this directory, then open http://localhost:3001.
 
 ## Check and build
 
-`node --test engine.test.mjs simulation.test.mjs`
+`node --test engine.test.mjs simulation.test.mjs taste.test.mjs`
 
 `node build.mjs` creates a clean `out/` for Sites hosting.
 

@@ -1,4 +1,5 @@
 import {newGame,weather} from './engine.mjs';
+import {preferences,evaluateTaste} from './taste.mjs';
 export const DAY_LENGTH=75;
 export const capacity=(inventory,recipe)=>Math.max(0,Math.min(...inventory.map((n,i)=>Math.floor(n/[1,...recipe][i]))));
 // The simulation owns money, queue slots and time. Rendering only observes it.
@@ -14,13 +15,13 @@ export class Simulation{
   if(cost>this.state.cash)throw Error('Not enough cash for those supplies.');
   if(!capacity(inventory,recipe))throw Error('Buy enough supplies for at least one cup.');
   this.state={...this.state,cash:this.state.cash-cost,inventory};this.recipe=[...recipe];this.price=price;this.phase='playing';this.remaining=DAY_LENGTH;this.spawnIn=.7;this.people=[];this.queue=[];this.making=null;this.time=0;this.paused=false;this.visits=0;
-  this.stats={sold:0,rejected:0,missed:0,impatient:0,cost,revenue:0,profit:-cost};this.message='The stand is open!';this.notice=2;this.events=[];
+  this.stats={sold:0,rejected:0,missed:0,impatient:0,cost,revenue:0,tips:0,profit:-cost};this.message='The stand is open!';this.notice=2;this.events=[];
  }
  announce(message){this.message=message;this.notice=2.5}
  spawn(){
   const budget=85+(this.conditions.temperature-60)*3+this.recipe[0]*10+Math.floor(this.random()*100);
   const p={id:++this.visits,x:-18,y:213,state:'approaching',dir:'side',moving:true,tint:Math.floor(this.random()*35)-10,maxPatience:12+this.random()*7,patience:0,path:[{x:150,y:213}],bubble:null};p.patience=p.maxPatience;
-  p.willing=budget>=this.price;this.people.push(p);
+  p.preference=preferences[Math.floor(this.random()*preferences.length)];p.willing=budget>=this.price;this.people.push(p);
  }
  leave(p,bubble){
   // Remove queue ownership immediately, so the next customer can advance.
@@ -52,7 +53,7 @@ export class Simulation{
     else{p.state='queuing';this.queue.push(p)}
    }else if(p.state==='queuing'||p.state==='waiting'){
     const index=this.queue.indexOf(p),target={x:240,y:204+index*26};
-    if(Math.hypot(p.x-target.x,p.y-target.y)>.5){p.state='queuing';p.path=p.x<230&&Math.abs(p.y-target.y)>.5?[{x:p.x,y:target.y}]:[target];if(this.advance(p,dt)&&Math.hypot(p.x-target.x,p.y-target.y)<.5)p.state='waiting'}else{p.state='waiting';p.moving=false;p.dir='up';p.bubble=this.making?.customer===p.id?'…':'cup'}
+    if(Math.hypot(p.x-target.x,p.y-target.y)>.5){p.state='queuing';p.path=p.x<230&&Math.abs(p.y-target.y)>.5?[{x:p.x,y:target.y}]:[target];if(this.advance(p,dt)&&Math.hypot(p.x-target.x,p.y-target.y)<.5)p.state='waiting'}else{p.state='waiting';p.moving=false;p.dir='up';p.bubble=this.making?.customer===p.id?'…':`taste-${p.preference.id}`}
     // Patience runs while queuing too, but is held during an active order.
     if(this.making?.customer!==p.id)p.patience-=dt;
     if(p.patience<=0){this.stats.impatient++;this.leave(p,'!');this.announce('A customer got tired of waiting')}
@@ -64,8 +65,13 @@ export class Simulation{
    if(this.making.elapsed>=this.making.duration){
     const p=this.queue.find(p=>p.id===this.making.customer);
     if(p&&capacity(this.state.inventory,this.recipe)>0){
-     [1,...this.recipe].forEach((n,i)=>this.state.inventory[i]-=n);this.state.cash+=this.price;this.stats.sold++;this.stats.revenue+=this.price;this.stats.profit=this.stats.revenue-this.stats.cost;
-     this.events.push({type:'sale',id:p.id,x:p.x,y:p.y});this.leave(p,'♥');this.announce('Fresh lemonade!')
+     const taste=evaluateTaste(this.recipe,p.preference,this.price);
+     [1,...this.recipe].forEach((n,i)=>this.state.inventory[i]-=n);
+     this.state.cash+=this.price+taste.tip;this.stats.sold++;this.stats.revenue+=this.price;this.stats.tips+=taste.tip;
+     this.stats.profit=this.stats.revenue+this.stats.tips-this.stats.cost;
+     p.feedback=taste.feedback;p.rating=taste.rating;
+     this.events.push({type:'sale',id:p.id,x:p.x,y:p.y,price:this.price,tip:taste.tip});
+     this.leave(p,taste.rating==='delighted'?'♥':taste.rating==='okay'?':)':':(');this.announce(taste.tip?`Thanks! $${(taste.tip/100).toFixed(2)} tip`:'Fresh lemonade!');
     }
     this.making=null;
    }

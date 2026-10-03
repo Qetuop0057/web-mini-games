@@ -26,8 +26,17 @@ export function scene(ctx,time,people=[],price=150,serveProgress=0){
 export function person(ctx,p,time){const d=p.dir||'down',im=sprites[d],w=d==='side'?10:12,h=15,frame=p.moving?Math.floor(time*8)%4:0;
  ctx.fillStyle='#45634144';ctx.beginPath();ctx.ellipse(p.x,p.y-1,10,3,0,0,Math.PI*2);ctx.fill();
  if(im.complete&&im.naturalWidth){ctx.save();ctx.translate(Math.round(p.x),Math.round(p.y));if(p.flip)ctx.scale(-1,1);ctx.filter=`hue-rotate(${p.tint||0}deg)`;ctx.drawImage(im,frame*w,0,w,h,-w, -h*2,w*2,h*2);ctx.restore()}
- if(p.bubble){const bx=p.x+14,by=p.y-46;ctx.fillStyle='#fff9e8';ctx.fillRect(bx,by,28,19);ctx.fillRect(bx-4,by+13,4,4);
-  if(p.bubble==='cup'){ctx.fillStyle='#b9cdbd';ctx.fillRect(bx+10,by+4,9,12);ctx.fillStyle='#f5ce48';ctx.fillRect(bx+11,by+8,7,7);ctx.fillStyle='#638349';ctx.fillRect(bx+16,by+1,2,6)}
-  else{ctx.fillStyle=p.bubble==='♥'?'#bd5c51':'#5c6b49';ctx.font='bold 12px monospace';ctx.textAlign='center';ctx.fillText(p.bubble,bx+14,by+14)}}
+ if(p.bubble){ctx.font='bold 10px monospace';const bx=p.x+14,by=p.y-46,width=p.feedback?Math.max(66,ctx.measureText(p.feedback).width+30):28;
+  ctx.fillStyle='#fff9e8';ctx.fillRect(bx,by,width,19);ctx.fillRect(bx-4,by+13,4,4);
+  const rect=(x,y,w,h,c)=>{ctx.fillStyle=c;ctx.fillRect(x,y,w,h)};
+  if(p.bubble==='taste-sour'){
+   rect(bx+8,by+7,12,7,'#f5cb42');rect(bx+10,by+5,8,11,'#ffe276');rect(bx+18,by+3,5,3,'#6b9955');
+  }else if(p.bubble==='taste-sweet'){
+   rect(bx+9,by+5,11,11,'#decfc4');rect(bx+8,by+4,10,10,'#fffef5');rect(bx+8,by+4,10,2,'#c6b6a8');
+  }else if(p.bubble==='taste-cool'){
+   rect(bx+8,by+4,12,12,'#75b8d1');rect(bx+10,by+5,8,9,'#ccebf0');rect(bx+11,by+6,3,2,'#fffef5');
+  }else if(p.bubble==='cup'){rect(bx+10,by+4,9,12,'#b9cdbd');rect(bx+11,by+8,7,7,'#f5ce48');rect(bx+16,by+1,2,6,'#638349')}
+  else{ctx.fillStyle=p.rating==='unhappy'?'#b06948':p.bubble==='♥'?'#bd5c51':'#5c6b49';ctx.font='bold 12px monospace';ctx.textAlign='center';ctx.fillText(p.bubble,bx+14,by+14);
+   if(p.feedback){ctx.font='bold 10px monospace';ctx.textAlign='left';ctx.fillText(p.feedback,bx+27,by+13)}}}
  if(p.patience!==undefined&&p.state==='waiting'){ctx.fillStyle='#795c43';ctx.fillRect(p.x+14,p.y-51,28,3);ctx.fillStyle=p.patience<4?'#d76e50':'#e4bb3f';ctx.fillRect(p.x+14,p.y-51,28*p.patience/p.maxPatience,3)}
 }
