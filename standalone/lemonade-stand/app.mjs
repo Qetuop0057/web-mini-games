@@ -169,11 +169,10 @@ function syncView(){
  $('#inventory-view').hidden=!atHome||view!=='inventory';$('#show-inventory').hidden=!atHome||view!=='home';
  $('#map-view').hidden=!atHome||view!=='map';$('#map-sign').hidden=!atHome||view!=='home';$('#show-recipe').hidden=!atHome||view!=='home';positionHomeHotspots();
  $('#setup').hidden=!atHome||view!=='prepare';$('#recipe-view').hidden=!atHome||view!=='recipe';$('#summary').hidden=game.phase!=='summary';
- $('#home-actions').hidden=!atHome||view==='market';$('#play-actions').hidden=game.phase!=='playing';$('#ingredient-rack').hidden=game.phase!=='playing';$('#clock').hidden=game.phase!=='playing';$('#banner').hidden=game.phase!=='summary';
+ $('#play-actions').hidden=game.phase!=='playing';$('#ingredient-rack').hidden=game.phase!=='playing';$('#clock').hidden=game.phase!=='playing';$('#banner').hidden=game.phase!=='summary';
  $('#scene').parentElement.classList.toggle('is-playing',game.phase==='playing');
  $('#scene').parentElement.classList.toggle('is-market',atHome&&view==='market');
  $('#scene').setAttribute('aria-label',atHome?(view==='market'?'Market square with a fruit stall, dry goods stall and vending machine':'Your home, with a lemonade stand in the yard to the right'):'Street scene with a lemonade stand and customers');
- $('#home-forecast').textContent=`Tomorrow: ${game.tomorrow.icon} ${game.tomorrow.label} · ${game.tomorrow.temperature}°F`;
 }
 function sync(){
  $('#location-name').textContent=game.phase==='setup'?(view==='market'?'Market':'Home'):getLocation(game.location).name;$('#cash').textContent=money(game.state.cash);$('#cups').textContent=game.state.inventory[0];$('#weather').textContent=`${game.conditions.icon} ${game.conditions.label} · ${game.conditions.temperature}°F`;

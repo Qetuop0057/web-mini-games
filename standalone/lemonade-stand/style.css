@@ -2,7 +2,7 @@
 
 .forecast{margin-bottom:4px;font-size:16px}.forecast-next{font-size:14px;color:#677562;margin-bottom:12px}.hud #weather{font-size:14px;align-self:center}
 
-#home-actions{justify-content:center;flex-wrap:wrap}#home-forecast{font-size:15px;color:#5d785c}#recipe-taste{text-align:center;font-weight:700;margin:14px 0 20px}@media(max-width:650px){#home-forecast{width:100%;text-align:center}#home-actions button{flex:1}}
+#recipe-taste{text-align:center;font-weight:700;margin:14px 0 20px}
 
 .scene-hotspot{position:absolute;padding:0;background:transparent;border:0;box-shadow:none;border-radius:0;cursor:pointer}.scene-hotspot:active{transform:none;box-shadow:none}.scene-hotspot:focus-visible{outline:3px dashed #fff9d7;outline-offset:2px}.map-panel{width:min(620px,100%)}.town-map{display:block;width:100%;height:auto;margin:12px 0 18px}
 
