@@ -4,6 +4,9 @@ import {money,names} from './engine.mjs';
 import {locations,getLocation,unlocked} from './locations.mjs';
 import {recipePages,tasteLabels} from './recipes.mjs';
 const $=s=>document.querySelector(s),game=new Simulation(),ctx=$('#scene').getContext('2d');let last=0,shownPhase='',audio,muted=true,effects=[],view='home',homeTime=0,bookRecipes=[],bookPage=0;
+// Only show hotspot focus outlines during keyboard navigation.
+document.addEventListener('pointerdown',()=>document.body.classList.add('pointer-input'),true);
+document.addEventListener('keydown',()=>document.body.classList.remove('pointer-input'),true);
 function tone(freq,duration=.12){if(muted)return;try{audio??=new (window.AudioContext||window.webkitAudioContext)();audio.resume();const o=audio.createOscillator(),g=audio.createGain();o.type='triangle';o.frequency.value=freq;g.gain.setValueAtTime(.05,audio.currentTime);g.gain.exponentialRampToValueAtTime(.001,audio.currentTime+duration);o.connect(g).connect(audio.destination);o.start();o.stop(audio.currentTime+duration)}catch{/* Sound is optional; game remains playable. */}}
 function recipe(){return ['lemons','sugar','ice'].map(id=>Number($('#'+id).value))}function order(){return [...document.querySelectorAll('.supply input')].map(el=>Number(el.value))}
 function refreshCost(){const cost=order().reduce((s,n,i)=>s+n*game.conditions.prices[i],0);$('#cost').textContent=money(cost);$('#error').textContent=cost>game.state.cash?'Not enough cash':''}
@@ -87,7 +90,7 @@ function syncView(){
  $('#inventory-view').hidden=!atHome||view!=='inventory';$('#show-inventory').hidden=!atHome||view!=='home';
  $('#map-view').hidden=!atHome||view!=='map';$('#map-sign').hidden=!atHome||view!=='home';$('#show-recipe').hidden=!atHome||view!=='home';positionHomeHotspots();
  $('#setup').hidden=!atHome||view!=='prepare';$('#recipe-view').hidden=!atHome||view!=='recipe';$('#summary').hidden=game.phase!=='summary';
- $('#home-actions').hidden=!atHome;$('#play-actions').hidden=game.phase!=='playing';$('#clock').hidden=game.phase!=='playing';$('#banner').hidden=atHome&&view!=='home';
+ $('#home-actions').hidden=!atHome;$('#play-actions').hidden=game.phase!=='playing';$('#clock').hidden=game.phase!=='playing';$('#banner').hidden=atHome;
  $('#scene').setAttribute('aria-label',atHome?'Your home, with a lemonade stand in the yard to the right':'Street scene with a lemonade stand and customers');
  $('#home-forecast').textContent=`Tomorrow: ${game.tomorrow.icon} ${game.tomorrow.label} · ${game.tomorrow.temperature}°F`;
 }
@@ -99,7 +102,7 @@ function sync(){
  $('#pause').disabled=game.phase!=='playing';
  $('#progress').textContent=game.making?`Mixing… ${Math.min(100,Math.round(game.making.elapsed/game.making.duration*100))}%`:game.paused?'Press Resume to continue':'Click the stand or press Space';
  if(shownPhase!==game.phase){shownPhase=game.phase;$('#pause').textContent='Pause';if(game.phase==='setup')view='home';syncView();
-  if(game.phase==='setup'){setup();['lemons','sugar','ice'].forEach((id,i)=>$('#'+id).value=game.recipe[i]);$('#map-sign').focus()}
+  if(game.phase==='setup'){setup();['lemons','sugar','ice'].forEach((id,i)=>$('#'+id).value=game.recipe[i])}
   if(game.phase==='summary'){
    const s=game.stats;$('#results').replaceChildren(...[['Cups sold',s.sold],['Sales revenue',money(s.revenue)],['Tips',money(s.tips)],['Supplies',money(s.cost)],['Net cash change',money(s.profit)],['Price rejected',s.rejected],['Walked away',s.impatient+s.missed]].map(([label,value])=>{const div=document.createElement('div');div.textContent=label;const strong=document.createElement('strong');strong.textContent=value;div.append(strong);return div}));tone(659,.3);$('#next').focus();
   }
