@@ -8,13 +8,20 @@ const $=s=>document.querySelector(s),game=new Simulation(),ctx=$('#scene').getCo
 document.addEventListener('pointerdown',()=>document.body.classList.add('pointer-input'),true);
 document.addEventListener('keydown',()=>document.body.classList.remove('pointer-input'),true);
 function tone(freq,duration=.12){if(muted)return;try{audio??=new (window.AudioContext||window.webkitAudioContext)();audio.resume();const o=audio.createOscillator(),g=audio.createGain();o.type='triangle';o.frequency.value=freq;g.gain.setValueAtTime(.05,audio.currentTime);g.gain.exponentialRampToValueAtTime(.001,audio.currentTime+duration);o.connect(g).connect(audio.destination);o.start();o.stop(audio.currentTime+duration)}catch{/* Sound is optional; game remains playable. */}}
-function recipe(){return ['lemons','sugar','ice'].map(id=>Number($('#'+id).value))}function order(){return [...document.querySelectorAll('.supply input')].map(el=>Number(el.value))}
-function refreshCost(){const cost=order().reduce((s,n,i)=>s+n*game.conditions.prices[i],0);$('#cost').textContent=money(cost);$('#error').textContent=cost>game.state.cash?'Not enough cash':''}
+function recipe(){return ['lemons','sugar','ice'].map(id=>Number($('#'+id).value))}
+function refreshCapacity(){
+ $('#stand-capacity').textContent=`Cups available: ${capacity(game.state.inventory,recipe())}`;
+ $('#error').textContent='';
+}
+function standStock(){
+ $('#stand-stock').replaceChildren(...names.map((name,i)=>{const item=document.createElement('div');item.textContent=name;const count=document.createElement('strong');count.textContent=game.state.inventory[i];item.append(count);return item}));refreshCapacity();
+}
+['lemons','sugar','ice'].forEach(id=>$('#'+id).addEventListener('input',refreshCapacity));
 function setup(){
  $('#setup-day').textContent=game.state.day;$('#forecast').textContent=`Today: ${game.conditions.icon} ${game.conditions.label} · ${game.conditions.temperature}°F`;$('#tomorrow').textContent=`Tomorrow: ${game.tomorrow.icon} ${game.tomorrow.label} · ${game.tomorrow.temperature}°F`;$('#forecast').title=game.conditions.description;
- $('#supplies').replaceChildren(...names.map((name,i)=>{const label=document.createElement('label');label.className='supply';const span=document.createElement('span');span.textContent=name+' ';const small=document.createElement('small');small.textContent=`${money(game.conditions.prices[i])} each · ${game.state.inventory[i]} left`;span.append(small);const input=document.createElement('input');Object.assign(input,{type:'number',min:'0',max:'1000',step:'1',value:game.state.inventory[i]>0?'0':game.state.day===1?'20':'10',required:true});input.setAttribute('aria-label',`Buy ${name.toLowerCase()}`);input.addEventListener('input',refreshCost);label.append(span,input);return label}));refreshCost();
+ standStock();
 }
-$('#setup').addEventListener('submit',e=>{e.preventDefault();try{game.open(order(),recipe(),Math.round(Number($('#price').value)*100));effects=[];view='stand';$('#scene').focus();tone(440)}catch(error){$('#error').textContent=error.message}});
+$('#setup').addEventListener('submit',e=>{e.preventDefault();try{game.open([0,0,0,0],recipe(),Math.round(Number($('#price').value)*100));effects=[];view='stand';$('#scene').focus();tone(440)}catch(error){$('#error').textContent=error.message}});
 function serve(){if(game.serve())tone(330)}$('#serve').addEventListener('click',serve);$('#scene').addEventListener('pointerdown',serve);
 window.addEventListener('keydown',e=>{if(e.code==='Space'&&!/INPUT|BUTTON|TEXTAREA/.test(e.target.tagName)){e.preventDefault();if(!e.repeat)serve()}if(e.code==='Escape'&&game.phase==='playing')pause()});
 function pause(){if(game.phase!=='playing')return;game.paused=!game.paused;$('#pause').textContent=game.paused?'Resume':'Pause';tone(220)}$('#pause').addEventListener('click',pause);
@@ -27,7 +34,7 @@ function changeView(next){
  if(next==='map')renderMap();
  if(next==='tv'){tvChannel=0;renderTelevision()}
  if(next==='market')renderMarket();
- if(next==='prepare')$('#setup-location').textContent=getLocation(game.location).name;
+ if(next==='prepare'){$('#setup-location').textContent=getLocation(game.location).name;standStock()}
  if(next==='inventory'){
   $('#inventory-details').replaceChildren(...names.map((name,i)=>{const div=document.createElement('div');div.textContent=name;const strong=document.createElement('strong');strong.textContent=game.state.inventory[i];div.append(strong);return div}));
   const draft=recipe().map((n,i)=>Number.isInteger(n)&&n>=1&&n<=3?n:game.recipe[i]);
@@ -91,7 +98,7 @@ function renderMarket(){
  $('#market-message').textContent='';
  $('#market-supplies').replaceChildren(...names.map((name,i)=>{const label=document.createElement('label');label.className='supply';const span=document.createElement('span');span.textContent=`${name} · ${money(game.conditions.prices[i])} each · ${game.state.inventory[i]} left`;const input=document.createElement('input');Object.assign(input,{type:'number',min:'0',max:'1000',step:'1',value:'0',required:true});input.setAttribute('aria-label','Buy '+name.toLowerCase());input.addEventListener('input',marketCost);label.append(span,input);return label}));marketCost();
 }
-$('#market-form').addEventListener('submit',e=>{e.preventDefault();try{const cost=game.buySupplies(marketOrder());renderMarket();$('#market-message').textContent=cost?`Supplies added · ${money(cost)}`:'Choose supplies to buy';document.querySelectorAll('.supply input').forEach(input=>{if(input.closest('#supplies'))input.value='0'});refreshCost();tone(440)}catch(error){$('#market-message').textContent=error.message}});
+$('#market-form').addEventListener('submit',e=>{e.preventDefault();try{const cost=game.buySupplies(marketOrder());renderMarket();$('#market-message').textContent=cost?`Supplies added · ${money(cost)}`:'Choose supplies to buy';tone(440)}catch(error){$('#market-message').textContent=error.message}});
 $('#market-map').addEventListener('click',()=>changeView('map'));$('#market-home').addEventListener('click',()=>changeView('home'));
 function renderRecipePage(direction){
  const page=bookRecipes[bookPage],labels=tasteLabels(page.quantities);

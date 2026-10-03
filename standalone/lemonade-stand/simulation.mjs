@@ -27,7 +27,7 @@ export class Simulation{
   if(!Number.isInteger(price)||price<25||price>500)throw Error('Price must be between $0.25 and $5.00.');
   const cost=order.reduce((s,n,i)=>s+n*this.conditions.prices[i],0), inventory=this.state.inventory.map((n,i)=>n+order[i]);
   if(cost>this.state.cash)throw Error('Not enough cash for those supplies.');
-  if(!capacity(inventory,recipe))throw Error('Buy enough supplies for at least one cup.');
+  if(!capacity(inventory,recipe))throw Error('Not enough supplies for this recipe. Visit the market first.');
   this.state={...this.state,cash:this.state.cash-cost,inventory};this.recipe=[...recipe];this.price=price;this.phase='playing';this.remaining=DAY_LENGTH;this.spawnIn=.7;this.people=[];this.queue=[];this.making=null;this.time=0;this.paused=false;this.visits=0;
   this.stats={sold:0,rejected:0,missed:0,impatient:0,cost:cost+this.dailySupplyCost,revenue:0,tips:0,profit:-(cost+this.dailySupplyCost)};this.message='The stand is open!';this.notice=2;this.events=[];
  }

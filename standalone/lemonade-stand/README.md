@@ -52,3 +52,5 @@ Market purchases add owned supplies and deduct cash immediately without starting
 
 ### Home television
 Click the TV in the left house window to watch two channels: today/tomorrow weather from the game forecast, and town news showing open destinations and the next sales milestone. The lower-right arrow changes to the previous channel; Escape closes the TV. Watching television does not advance time or spend money.
+
+Stand preparation uses existing inventory only: choose a recipe and price, then open. Supply purchases are made in the Market.
