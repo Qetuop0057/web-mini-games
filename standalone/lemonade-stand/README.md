@@ -16,7 +16,7 @@ Setup shows today's weather/temperature and tomorrow's forecast. Forecasts are e
 
 Sunny: 40%, 70–86°F, traffic ×1, budget +0 cents. Cloudy: 30%, 60–78°F, traffic ×0.85, budget −10 cents. Rainy: 20%, 60–74°F, traffic ×0.55, budget −25 cents. Heatwave: 10%, 85–90°F, traffic ×1.25, budget +15 cents.
 
-Temperature still speeds arrivals and raises customer budgets. Weather additionally modifies arrival intervals and budgets. Hot days attract more ice-loving customers without changing the taste/tip thresholds. Rain shades the scene and adds animated raindrops; clouds dim it; heat adds a warm tint. Pause freezes these effects too.
+Temperature still speeds arrivals and raises customer budgets. Weather additionally modifies arrival intervals and budgets. Hot days attract more ice-loving customers without changing the taste/tip thresholds. Rain shades the scene and adds animated raindrops; 60% of rainy-day customers carry one of three colored pixel umbrellas for their entire visit. Umbrellas follow walking, queuing and leaving, and bob only while moving. They have no gameplay effect; clouds dim it; heat adds a warm tint. Pause freezes these effects too.
 
 ## Run
 

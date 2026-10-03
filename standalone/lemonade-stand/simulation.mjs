@@ -23,7 +23,9 @@ export class Simulation{
   const budget=customerBudget(this.conditions,this.recipe[0],this.random);
   const p={id:++this.visits,x:-18,y:213,state:'approaching',dir:'side',moving:true,tint:Math.floor(this.random()*35)-10,maxPatience:12+this.random()*7,patience:0,path:[{x:150,y:213}],bubble:null};p.patience=p.maxPatience;
   const coolChance=coolPreferenceChance(this.conditions),roll=this.random();
-  p.preference=roll<coolChance?preferences[2]:roll<coolChance+(1-coolChance)/2?preferences[0]:preferences[1];p.willing=budget>=this.price;this.people.push(p);
+  p.preference=roll<coolChance?preferences[2]:roll<coolChance+(1-coolChance)/2?preferences[0]:preferences[1];p.willing=budget>=this.price;
+  // Decide once on arrival: the umbrella stays with this customer for the entire visit.
+  p.umbrella=this.conditions.id==='rainy'&&this.random()<.6;this.people.push(p);
  }
  leave(p,bubble){
   // Remove queue ownership immediately, so the next customer can advance.
