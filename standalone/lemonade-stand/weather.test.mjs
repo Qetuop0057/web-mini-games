@@ -33,6 +33,6 @@ test('rain and heatwave days still finish with exact money and no overselling',(
  for(const type of [weatherTypes[2],weatherTypes[3]]){
   const g=new Simulation(()=>.5);g.conditions={...type,temperature:type.max,prices:[10,20,10,5]};openStand(g,[6,6,6,6],100);
   for(let i=0;i<2800;i++){fillCup(g);g.serve();g.tick(.05)}
-  assert.equal(g.phase,'summary');assert.ok(g.stats.sold<=6);assert.equal(g.state.cash,2000-g.stats.cost+g.stats.revenue+g.stats.tips);assert.ok(g.state.inventory.every(n=>n>=0));
+  assert.equal(g.phase,'summary');assert.ok(g.stats.sold<=6);assert.equal(g.state.cash,1500-g.stats.cost+g.stats.revenue+g.stats.tips);assert.ok(g.state.inventory.every(n=>n>=0));
  }
 });

@@ -2,7 +2,7 @@
 
 Standalone Canvas 2D game, no external runtime dependencies.
 
-Start with $20. Buy supplies in the Market, set the price, then open for a 75-second day. Customers walk into a four-place queue. The counter automatically prepares one paper cup when the first customer reaches the stand. Click Lemon, Sugar and Ice to add individual portions (one to three of each), then Mix & serve to stir for 1.25 seconds and hand over this specific drink. There is no day-wide recipe selector.
+Start with $15 and 10 free cups, lemons, sugar and ice each. Set the price and open immediately, or buy extra supplies in the Market before opening for a 75-second day. Customers walk into a four-place queue. The counter automatically prepares one paper cup when the first customer reaches the stand. Click Lemon, Sugar and Ice to add individual portions (one to three of each), then Mix & serve to stir for 1.25 seconds and hand over this specific drink. There is no day-wide recipe selector.
 
 Customers reject expensive drinks, leave a full queue, lose patience or leave when the stand sells out. Pause/Resume stops the clock, movement and cooking. Changing tabs pauses automatically. Sound is optional.
 

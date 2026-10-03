@@ -36,7 +36,7 @@ test('an interrupted mix keeps the paid-for cup without a sale',()=>{
 test('closing disposes of an unfinished cup once; next day and reset clear mixing state',()=>{
  const g=counter();g.addIngredient(0);const before=[...g.state.inventory];g.remaining=0;g.leave(g.queue[0],'!');tick(g,8);
  assert.equal(g.phase,'summary');assert.equal(g.stats.wasted,1);assert.equal(g.drink,null);assert.deepEqual(g.state.inventory,before);tick(g,3);assert.equal(g.stats.wasted,1);
- g.next();assert.equal(g.drink,null);assert.equal(g.making,null);assert.deepEqual(g.state.inventory,before);g.reset();assert.equal(g.drink,null);assert.deepEqual(g.state.inventory,[0,0,0,0]);
+ g.next();assert.equal(g.drink,null);assert.equal(g.making,null);assert.deepEqual(g.state.inventory,before);g.reset();assert.equal(g.drink,null);assert.deepEqual(g.state.inventory,[10,10,10,10]);
 });
 test('varied live recipes finish full seeded days with exact cash and bounded inventory',()=>{
  for(let seed=1;seed<=30;seed++){
@@ -46,7 +46,7 @@ test('varied live recipes finish full seeded days with exact cash and bounded in
    const p=g.activeCustomer();if(p&&g.drink&&!g.making){const recipe={sour:[2,1,2],sweet:[1,2,2],cool:[1,1,3]}[p.preference.id];recipe.forEach((n,j)=>{while(g.drink.ingredients[j]<n){if(!g.addIngredient(j))break;spent[j]++}});g.serve()}
    g.tick(.05);assert.ok(g.state.inventory.every(n=>Number.isInteger(n)&&n>=0));
   }
-  assert.equal(g.phase,'summary');assert.ok(g.stats.sold<=10);assert.deepEqual(g.state.inventory.slice(1),[20,20,20].map((n,i)=>n-spent[i]));assert.equal(g.state.cash,2000-g.stats.cost+g.stats.revenue+g.stats.tips);assert.equal(g.stats.sold,g.events.length);assert.equal(g.stats.profit,g.stats.revenue+g.stats.tips-g.stats.cost);
+  assert.equal(g.phase,'summary');assert.ok(g.stats.sold<=10);assert.deepEqual(g.state.inventory.slice(1),[20,20,20].map((n,i)=>n-spent[i]));assert.equal(g.state.cash,1500-g.stats.cost+g.stats.revenue+g.stats.tips);assert.equal(g.stats.sold,g.events.length);assert.equal(g.stats.profit,g.stats.revenue+g.stats.tips-g.stats.cost);
  }
 });
 

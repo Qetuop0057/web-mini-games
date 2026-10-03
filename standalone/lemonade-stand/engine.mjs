@@ -1,7 +1,7 @@
 import {generateWeather} from './weather.mjs';
 export const names = ["Cups", "Lemons", "Sugar", "Ice"];
 export const money = cents => `$${(cents / 100).toFixed(2)}`;
-export function newGame() { return { day: 1, cash: 2000, inventory: [0, 0, 0, 0], pantry: {watermelon:0,strawberry:0,orange:0,milk:0}, totalSold: 0 }; }
+export function newGame() { return { day: 1, cash: 1500, inventory: [10, 10, 10, 10], pantry: {watermelon:0,strawberry:0,orange:0,milk:0}, totalSold: 0 }; }
 export function weather(random = Math.random) {
  const conditions=generateWeather(random);
  // Only the retained lab batch simulator uses this estimate; live gameplay uses arrivalInterval.
