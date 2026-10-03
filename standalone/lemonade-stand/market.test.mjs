@@ -5,7 +5,7 @@ test('catalog groups four fruits and dry goods; vending remains an entrance only
 });
 test('fruit purchases debit cash once and store both live and future ingredients',()=>{
  const g=new Simulation(()=>.5),order={lemons:3,watermelon:2,strawberry:4,orange:1};const cost=marketQuote('fruit',order,g.conditions);const cash=g.state.cash;
- assert.equal(g.buyMarket('fruit',order),cost);assert.equal(g.state.cash,cash-cost);assert.deepEqual(g.state.inventory,[10,13,10,10]);assert.deepEqual(g.state.pantry,{watermelon:2,strawberry:4,orange:1,milk:0});assert.equal(g.dailySupplyCost,cost);assert.equal(g.phase,'setup');
+ assert.equal(g.buyMarket('fruit',order),cost);assert.equal(g.state.cash,cash-cost);assert.deepEqual(g.state.inventory,[10,13,10,10]);assert.deepEqual(g.state.pantry,{watermelon:7,strawberry:9,orange:1,milk:0});assert.equal(g.dailySupplyCost,cost);assert.equal(g.phase,'setup');
  for(const product of stallProducts('fruit'))assert.ok(owned(g.state,product)>0);
 });
 test('dry goods complete supplies for live lemonade, include milk and charge nothing at opening',()=>{
@@ -18,5 +18,5 @@ test('wrong stall, vending, invalid or unaffordable purchases cannot partially m
  assert.equal(g.buyMarket('fruit',{}),0);assert.equal(g.state.cash,1500);
 });
 test('future ingredients survive a day transition and reset starts a fresh pantry',()=>{
- const g=new Simulation(()=>.5);g.buyMarket('fruit',{lemons:1,watermelon:1,orange:1,strawberry:1});g.buyMarket('dry',{sugar:1,ice:1,cups:1,milk:1});const pantry={...g.state.pantry},forecast={...g.tomorrow};g.open(150);for(let i=0;i<2800;i++)g.tick(.05);assert.equal(g.phase,'summary');assert.deepEqual(g.state.pantry,pantry);g.next();assert.deepEqual(g.state.pantry,pantry);assert.deepEqual(g.conditions,forecast);assert.equal(g.dailySupplyCost,0);g.reset();assert.deepEqual(g.state.pantry,{watermelon:0,strawberry:0,orange:0,milk:0});
+ const g=new Simulation(()=>.5);g.buyMarket('fruit',{lemons:1,watermelon:1,orange:1,strawberry:1});g.buyMarket('dry',{sugar:1,ice:1,cups:1,milk:1});const pantry={...g.state.pantry},forecast={...g.tomorrow};g.open(150);for(let i=0;i<2800;i++)g.tick(.05);assert.equal(g.phase,'summary');assert.deepEqual(g.state.pantry,pantry);g.next();assert.deepEqual(g.state.pantry,pantry);assert.deepEqual(g.conditions,forecast);assert.equal(g.dailySupplyCost,0);g.reset();assert.deepEqual(g.state.pantry,{watermelon:5,strawberry:5,orange:0,milk:0});
 });

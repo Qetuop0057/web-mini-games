@@ -7,7 +7,7 @@ test('cups start at the counter only, portions debit immediately and cap at thre
  const g=new Simulation(()=>.5);openStand(g,[5,5,5,5]);g.spawnIn=Infinity;tick(g,1);assert.equal(g.drink,null);assert.deepEqual(g.state.inventory,[5,5,5,5]);assert.equal(g.addIngredient(0),false);
  customer(g);g.tick(0);assert.deepEqual(g.state.inventory,[4,5,5,5]);assert.deepEqual(g.drink.ingredients,[0,0,0]);g.tick(0);assert.equal(g.state.inventory[0],4);
  for(let i=0;i<3;i++)assert.equal(g.addIngredient(0),true);assert.equal(g.addIngredient(0),false);assert.deepEqual(g.state.inventory,[4,2,5,5]);assert.equal(g.canServe(),false);
- for(const i of [-1,3,.5,NaN])assert.equal(g.addIngredient(i),false);assert.deepEqual(g.drink.ingredients,[3,0,0]);
+ for(const i of [-1,5,.5,NaN])assert.equal(g.addIngredient(i),false);assert.deepEqual(g.drink.ingredients,[3,0,0]);
 });
 test('a final cup serves after all remaining inventory is already consumed',()=>{
  const g=counter([1,1,1,1]);fillCup(g);assert.deepEqual(g.state.inventory,[0,0,0,0]);assert.equal(g.hasSupplies(),true);assert.equal(g.canServe(),true);const cash=g.state.cash;

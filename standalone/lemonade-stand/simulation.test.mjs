@@ -10,7 +10,7 @@ test('unserved customers time out and the day finishes',()=>{const g=new Simulat
 test('a complete played day preserves cash accounting and never oversells',()=>{const g=new Simulation(()=>.5);openStand(g,[3,3,3,3],100);tick(g,140,true);assert.equal(g.phase,'summary');assert.equal(g.stats.sold,3);assert.equal(capacity(g.state.inventory),0);assert.equal(g.state.cash,1500-g.stats.cost+g.stats.revenue);assert.equal(g.stats.profit,g.stats.revenue-g.stats.cost);const cash=g.state.cash;g.next();assert.equal(g.phase,'setup');assert.equal(g.state.day,2);assert.equal(g.state.cash,cash);assert.deepEqual(g.state.inventory,[0,0,0,0]);g.reset();assert.equal(g.state.cash,1500);assert.equal(g.state.day,1)});
 
 test('starter supplies are free, allow immediate opening and reset without duplicating gifts on later days',()=>{
- const g=new Simulation(()=>.5);assert.equal(g.state.cash,1500);assert.deepEqual(g.state.inventory,[10,10,10,10]);assert.equal(g.dailySupplyCost,0);
- g.open(150);assert.equal(g.stats.cost,0);assert.equal(g.state.cash,1500);g.state.inventory=[7,8,9,6];g.finishDay();g.next();assert.deepEqual(g.state.inventory,[7,8,9,6]);assert.equal(g.state.cash,1500);
- g.reset();assert.equal(g.state.day,1);assert.equal(g.state.cash,1500);assert.deepEqual(g.state.inventory,[10,10,10,10]);assert.equal(g.dailySupplyCost,0);
+ const g=new Simulation(()=>.5);assert.equal(g.state.cash,1500);assert.deepEqual(g.state.inventory,[10,10,10,10]);assert.equal(g.dailySupplyCost,0);assert.deepEqual(g.state.pantry,{watermelon:5,strawberry:5,orange:0,milk:0});
+ g.open(150);assert.equal(g.stats.cost,0);assert.equal(g.state.cash,1500);g.state.inventory=[7,8,9,6];g.state.pantry.strawberry=3;g.state.pantry.watermelon=2;g.finishDay();g.next();assert.equal(g.state.pantry.strawberry,3);assert.equal(g.state.pantry.watermelon,2);assert.deepEqual(g.state.inventory,[7,8,9,6]);assert.equal(g.state.cash,1500);
+ g.reset();assert.deepEqual(g.state.pantry,{watermelon:5,strawberry:5,orange:0,milk:0});assert.equal(g.state.day,1);assert.equal(g.state.cash,1500);assert.deepEqual(g.state.inventory,[10,10,10,10]);assert.equal(g.dailySupplyCost,0);
 });

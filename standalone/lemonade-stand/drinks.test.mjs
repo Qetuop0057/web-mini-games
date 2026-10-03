@@ -12,9 +12,9 @@ test('customer orders include classic, pink and watermelon; fruit match requires
 });
 test('correct pink and watermelon drinks consume market stock once and retain normal tips',()=>{
  for(const [order,index,fruit] of [['pink',3,'strawberry'],['watermelon',4,'watermelon']]){
-  const g=counter(order);assert.equal(g.queue[0].bubble,`drink-${order}`);fillCup(g,[1,2,2]);assert.equal(g.addIngredient(index),true);assert.equal(g.addIngredient(index),false);assert.equal(g.state.pantry[fruit],2);
+  const g=counter(order);assert.equal(g.queue[0].bubble,`drink-${order}`);fillCup(g,[1,2,2]);assert.equal(g.addIngredient(index),true);assert.equal(g.addIngredient(index),false);assert.equal(g.state.pantry[fruit],7);
   const stock=JSON.stringify(g.state),cash=g.state.cash;assert.equal(g.serve(),true);assert.equal(g.serve(),false);assert.equal(g.addIngredient(index),false);tick(g,1.3);
-  assert.equal(g.stats.sold,1);assert.equal(g.stats.tips,30);assert.equal(g.state.cash,cash+180);assert.equal(g.stats.wasted,0);assert.equal(g.stats.wrongDrinks,0);assert.equal(g.state.pantry[fruit],2);assert.equal(g.events[0].fruit[fruit],1);assert.equal(g.stats.profit,g.stats.revenue+g.stats.tips-g.stats.cost);
+  assert.equal(g.stats.sold,1);assert.equal(g.stats.tips,30);assert.equal(g.state.cash,cash+180);assert.equal(g.stats.wasted,0);assert.equal(g.stats.wrongDrinks,0);assert.equal(g.state.pantry[fruit],7);assert.equal(g.events[0].fruit[fruit],1);assert.equal(g.stats.profit,g.stats.revenue+g.stats.tips-g.stats.cost);
  }
 });
 test('missing, opposite, mixed or unwanted fruit wastes one cup, removes the customer and never pays',()=>{
@@ -27,5 +27,5 @@ test('missing, opposite, mixed or unwanted fruit wastes one cup, removes the cus
 });
 test('fruit respects stock, pause, discard, early closing and carry-over without refunds',()=>{
  const g=counter('pink');g.state.pantry.strawberry=0;assert.equal(g.addIngredient(3),false);g.state.pantry.strawberry=2;g.paused=true;assert.equal(g.addIngredient(3),false);g.paused=false;assert.equal(g.addIngredient(3),true);assert.equal(g.state.pantry.strawberry,1);
- assert.equal(g.discard(),true);assert.equal(g.state.pantry.strawberry,1);g.tick(0);g.addIngredient(3);g.finishDay();assert.equal(g.stats.wasted,2);assert.equal(g.state.pantry.strawberry,0);g.next();assert.equal(g.state.pantry.strawberry,0);g.reset();assert.equal(g.state.pantry.strawberry,0);
+ assert.equal(g.discard(),true);assert.equal(g.state.pantry.strawberry,1);g.tick(0);g.addIngredient(3);g.finishDay();assert.equal(g.stats.wasted,2);assert.equal(g.state.pantry.strawberry,0);g.next();assert.equal(g.state.pantry.strawberry,0);g.reset();assert.equal(g.state.pantry.strawberry,5);
 });
