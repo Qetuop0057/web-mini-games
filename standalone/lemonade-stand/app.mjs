@@ -32,11 +32,11 @@ $('#close-map').addEventListener('click',()=>{changeView('home');$('#map-sign').
 $('#go-stand').addEventListener('click',()=>changeView('prepare'));
 $('#show-recipe').addEventListener('click',()=>changeView('recipe'));
 $('#back-home').addEventListener('click',()=>changeView('home'));
-$('#close-recipe').addEventListener('click',()=>changeView('home'));
+$('#close-recipe').addEventListener('click',()=>{changeView('home');$('#show-recipe').focus()});
 function syncView(){
  const atHome=game.phase==='setup';
  $('#overlay').hidden=game.phase==='playing'||(atHome&&view==='home');
- $('#map-view').hidden=!atHome||view!=='map';$('#map-sign').hidden=!atHome||view!=='home';positionMapSign();
+ $('#map-view').hidden=!atHome||view!=='map';$('#map-sign').hidden=!atHome||view!=='home';$('#show-recipe').hidden=!atHome||view!=='home';positionHomeHotspots();
  $('#setup').hidden=!atHome||view!=='prepare';$('#recipe-view').hidden=!atHome||view!=='recipe';$('#summary').hidden=game.phase!=='summary';
  $('#home-actions').hidden=!atHome;$('#play-actions').hidden=game.phase!=='playing';$('#clock').hidden=game.phase!=='playing';$('#banner').hidden=atHome&&view!=='home';
  $('#scene').setAttribute('aria-label',atHome?'Your home, with a lemonade stand in the yard to the right':'Street scene with a lemonade stand and customers');
@@ -66,11 +66,13 @@ requestAnimationFrame(frame);
 
 // Canvas uses object-fit: contain on mobile. Keep the native, keyboard-accessible
 // hotspot over the drawn sign, including any letterboxing.
-function positionMapSign(){
+function positionHomeHotspots(){
  const canvas=$('#scene'),bounds=canvas.getBoundingClientRect(),parent=canvas.parentElement.getBoundingClientRect();
  const width=Math.min(bounds.width,bounds.height*1.6),height=width/1.6;
  const left=bounds.left-parent.left-canvas.parentElement.clientLeft+canvas.parentElement.scrollLeft+(bounds.width-width)/2;
  const top=bounds.top-parent.top-canvas.parentElement.clientTop+canvas.parentElement.scrollTop+(bounds.height-height)/2;
- Object.assign($('#map-sign').style,{left:`${left+width*176/480}px`,top:`${top+height*231/300}px`,width:`${width*82/480}px`,height:`${height*53/300}px`});
+ for(const [id,x,y,w,h] of [['map-sign',176,231,82,53],['show-recipe',332,32,68,54]]){
+  Object.assign($('#'+id).style,{left:`${left+width*x/480}px`,top:`${top+height*y/300}px`,width:`${width*w/480}px`,height:`${height*h/300}px`});
+ }
 }
-new ResizeObserver(positionMapSign).observe($('#scene'));
+new ResizeObserver(positionHomeHotspots).observe($('#scene'));
