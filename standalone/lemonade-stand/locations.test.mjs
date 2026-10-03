@@ -47,3 +47,12 @@ test('commercial customers accept a higher price while weather, tips and other l
  const customers=[];for(const id of ['lemon-lane','park','commercial']){const g=new Simulation(()=>.5);g.state.totalSold=100;g.conditions={...g.conditions,id:'sunny',temperature:70,budget:0,traffic:1};g.selectLocation(id);g.open(225);g.spawn();customers.push(g.people[0].willing);assert.equal(g.stats.stallFee,0);assert.equal(g.state.cash,1500)}
  assert.deepEqual(customers,[false,false,true]);
 });
+
+test('commercial patience is thirty percent shorter, expires sooner and still freezes during pause and stirring',()=>{
+ const games=['lemon-lane','park','commercial','night-market'].map(id=>{const g=new Simulation(()=>.5);g.state.totalSold=100;g.state.cash=10000;g.selectLocation(id);g.open(150);g.spawnIn=Infinity;g.spawn();const p=g.people[0];p.x=240;p.y=204;p.state='waiting';p.path=[];p.willing=true;g.queue=[p];return g});
+ assert.deepEqual(games.map(g=>g.queue[0].maxPatience),[15.5,15.5,10.85,15.5]);
+ const commercial=games[2],customer=commercial.queue[0];commercial.paused=true;commercial.tick(.1);assert.equal(customer.patience,10.85);commercial.paused=false;
+ for(const g of games)for(let i=0;i<110;i++)g.tick(.1);
+ assert.equal(commercial.stats.impatient,1);assert.equal(commercial.queue.length,0);for(const g of [games[0],games[1],games[3]])assert.equal(g.stats.impatient,0);
+ const mixing=new Simulation(()=>.5);mixing.state.totalSold=50;mixing.selectLocation('commercial');mixing.open(150);mixing.spawnIn=Infinity;mixing.spawn();const p=mixing.people[0];p.x=240;p.y=204;p.state='waiting';p.path=[];p.willing=true;mixing.queue=[p];mixing.tick(0);fillCup(mixing);mixing.serve();const patience=p.patience;mixing.tick(.1);assert.equal(p.patience,patience);
+});

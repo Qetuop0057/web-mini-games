@@ -65,7 +65,7 @@ export class Simulation{
  announce(message){this.message=message;this.notice=2.5}
  spawn(){
   const budget=locationBudget(this.location,customerBudget(this.conditions,1,this.random));
-  const p={id:++this.visits,x:-18,y:213,state:'approaching',dir:'side',moving:true,tint:Math.floor(this.random()*35)-10,maxPatience:12+this.random()*7,patience:0,path:[{x:150,y:213}],bubble:null};p.patience=p.maxPatience;
+  const p={id:++this.visits,x:-18,y:213,state:'approaching',dir:'side',moving:true,tint:Math.floor(this.random()*35)-10,maxPatience:(12+this.random()*7)*(getLocation(this.location).patienceMultiplier??1),patience:0,path:[{x:150,y:213}],bubble:null};p.patience=p.maxPatience;
   const coolChance=coolPreferenceChance(this.conditions),roll=this.random();
   p.preference=roll<coolChance?preferences[2]:roll<coolChance+(1-coolChance)/2?preferences[0]:preferences[1];p.willing=budget>=this.price;p.order=chooseDrink(this.random);
   // Decide once on arrival: the umbrella stays with this customer for the entire visit.
