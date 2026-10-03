@@ -6,7 +6,7 @@ Start with $20. Buy supplies in the Market, set the price, then open for a 75-se
 
 Customers reject expensive drinks, leave a full queue, lose patience or leave when the stand sells out. Pause/Resume stops the clock, movement and cooking. Changing tabs pauses automatically. Sound is optional.
 
-After closing, finish the queue, review the summary and continue to the next day. Inventory carries over. Refreshing starts a new session.
+When the timer runs out, finish the queue and review the summary. End day closes immediately, including while paused: completed sales and tips remain, the unfinished cup is counted as waste, and queued customers leave without new charges or revenue. Continue to the next day from the summary. Inventory carries over. Refreshing starts a new session.
 
 Customers have sour, sweet or cool preferences. Cool preference chance is 20% in rain, 50% at 85°F or hotter, and one third otherwise; sour and sweet split the remainder. Balance is sugar minus lemons; ideal balance/ice pairs are (-1,2), (1,2) and (0,3). Manhattan distance 0 gives a 20% tip, distance 1 gives 10%, and distance 2 or more gives no tip. Tips round to cents and arrive with the completed sale. Order bubbles show a lemon, sugar cube or ice cube; feedback appears after tasting. Sales revenue and tips are separate in the daily summary; net cash change includes both. No end-of-day advice is shown.
 
@@ -56,6 +56,8 @@ Click the TV in the left house window to watch two channels: today/tomorrow weat
 Stand preparation uses existing inventory only: choose a price, then open. Supply purchases are made in the Market.
 
 ## Mixing at the counter
+
+Small ingredient icons occupy a shelf on the left of the street, with numeric stock and portion counts. Ingredient names remain available to screen readers. A compact bottom counter holds the cup, mixing/discard controls, Pause and End day.
 
 Paper cups and portions are charged to inventory immediately. Each customer asks for sour, sweet or cold lemonade; taste feedback and the existing 20%/10%/0% tipping rules use the actual cup contents. Customers continue to lose patience while the player adds ingredients, but the customer being served waits during stirring. Ingredient additions and discarding are blocked during mixing and pause. Completed sales never debit materials a second time, even when the current cup uses the final inventory portions.
 

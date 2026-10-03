@@ -27,6 +27,7 @@ for(const [index,id] of ingredientIds.entries()){
  $('#add-'+id).addEventListener('click',()=>addIngredient(index));
 }
 function addIngredient(index){if(game.addIngredient(index)){drops.push({index,age:0});tone(380+index*100,.07)}}
+$('#end-day').addEventListener('click',()=>{if(game.finishDay()){effects=[];drops=[];delivery=null;sync()}});
 $('#discard').addEventListener('click',()=>{if(game.discard()){drops=[];tone(180,.1)}});
 window.addEventListener('keydown',e=>{
  if(game.phase!=='playing'||/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))return;
@@ -167,7 +168,7 @@ function syncView(){
  $('#inventory-view').hidden=!atHome||view!=='inventory';$('#show-inventory').hidden=!atHome||view!=='home';
  $('#map-view').hidden=!atHome||view!=='map';$('#map-sign').hidden=!atHome||view!=='home';$('#show-recipe').hidden=!atHome||view!=='home';positionHomeHotspots();
  $('#setup').hidden=!atHome||view!=='prepare';$('#recipe-view').hidden=!atHome||view!=='recipe';$('#summary').hidden=game.phase!=='summary';
- $('#home-actions').hidden=!atHome||view==='market';$('#play-actions').hidden=game.phase!=='playing';$('#clock').hidden=game.phase!=='playing';$('#banner').hidden=game.phase!=='summary';
+ $('#home-actions').hidden=!atHome||view==='market';$('#play-actions').hidden=game.phase!=='playing';$('#ingredient-rack').hidden=game.phase!=='playing';$('#clock').hidden=game.phase!=='playing';$('#banner').hidden=game.phase!=='summary';
  $('#scene').parentElement.classList.toggle('is-playing',game.phase==='playing');
  $('#scene').parentElement.classList.toggle('is-market',atHome&&view==='market');
  $('#scene').setAttribute('aria-label',atHome?(view==='market'?'Market square with a fruit stall, dry goods stall and vending machine':'Your home, with a lemonade stand in the yard to the right'):'Street scene with a lemonade stand and customers');
@@ -191,7 +192,7 @@ function syncCounter(){
  $('#order-request').textContent=customer?{sour:'Something sour, please!',sweet:'Sweet lemonade, please!',cool:'Make it ice cold!'}[customer.preference.id]:'Waiting for a customer';
  $('#customer-patience').hidden=!customer;$('#customer-patience').value=customer?.patience||0;$('#customer-patience').max=customer?.maxPatience||1;
  for(const [i,id] of ingredientIds.entries()){
-  $('#add-'+id).disabled=!game.canAdd(i);$('#'+id+'-stock').textContent=game.state.inventory[i+1]+' left';$('#'+id+'-count').textContent=amounts[i]+' / 3';
+  $('#add-'+id).disabled=!game.canAdd(i);$('#'+id+'-stock').textContent=game.state.inventory[i+1];$('#'+id+'-count').textContent=amounts[i]+' / 3';$('#add-'+id).setAttribute('aria-label',`${id}: ${game.state.inventory[i+1]} in stock, ${amounts[i]} of 3 added`);
  }
  $('#mixing-stage').setAttribute('aria-label',game.drink?`Current cup: ${amounts[0]} lemon, ${amounts[1]} sugar, ${amounts[2]} ice`:'No cup prepared');
  $('#cup-stock').textContent=game.state.inventory[0]+' cups left';

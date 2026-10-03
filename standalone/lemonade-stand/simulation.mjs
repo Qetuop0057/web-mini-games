@@ -118,7 +118,15 @@ export class Simulation{
   this.prepareCup();
   this.people=this.people.filter(p=>p.state!=='gone');
   if(!this.notice)this.message=this.remaining<=0?'Closing — serve the last customers':!this.hasSupplies()?'Sold out':this.queue[0]?.state==='waiting'?'Add ingredients, then mix & serve':'Customers are on their way';
-  if(this.remaining<=0&&!this.people.length&&!this.making){if(this.drink){this.stats.wasted++;this.drink=null}this.phase='summary';this.message='Day complete'}
+  if(this.remaining<=0&&!this.people.length&&!this.making)this.finishDay();
+ }
+ // Closing settles completed sales only; unfinished drinks remain spent.
+ finishDay(){
+  if(this.phase!=='playing')return false;
+  if(this.drink)this.stats.wasted++;
+  this.drink=null;this.making=null;this.people=[];this.queue=[];this.paused=false;this.remaining=0;
+  this.stats.profit=this.stats.revenue+this.stats.tips-this.stats.cost;
+  this.phase='summary';this.message='Day complete';return true;
  }
  next(){if(this.phase!=='summary')return;this.state.day++;this.dailySupplyCost=0;this.conditions=this.tomorrow;this.tomorrow=weather(this.random);this.phase='setup';this.people=[];this.queue=[];this.drink=null;this.making=null;this.paused=false;this.message='A new day, a fresh start'}
 }

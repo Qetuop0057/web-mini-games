@@ -50,23 +50,26 @@
 #setup .stand-buttons button{margin:0;min-height:40px;padding:7px 14px}
 #setup .stand-buttons .quiet{padding:7px 8px}
 @media(max-width:650px){#setup{padding:12px}#setup input{padding:5px 3px}.stand-heading{gap:8px}}
-/* The street and working counter share the play surface. Ingredient buttons stay
-   native so tapping, keyboard navigation and disabled states agree with the model. */
-.game.is-playing > #scene{height:clamp(180px,35vh,340px);min-height:0;object-fit:contain}
-.mixing-counter{background:#e5c49a;border-top:5px solid #87623f;padding:12px 18px 14px;box-shadow:inset 0 3px #f2dab6}
-.order-line{display:flex;align-items:center;gap:14px;margin-bottom:10px;min-height:30px}.order-line strong{font-size:16px;flex:1}.order-line .quiet{margin:0;padding:4px 8px;font-size:14px;min-height:32px}
-#customer-patience{width:80px;height:8px;accent-color:#7b914b;border:0;border-radius:4px;overflow:hidden}#customer-patience::-webkit-progress-bar{background:#b89b76}#customer-patience::-webkit-progress-value{background:#7b914b}
-.mixing-layout{display:grid;grid-template-columns:1.2fr .65fr .9fr;align-items:center;gap:18px}
-.ingredient-buttons{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-.ingredient-button{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0;padding:9px 5px 7px;background:#fff2cf;border-color:#87623f;box-shadow:0 3px #87623f;font-size:14px;font-weight:400}
-.ingredient-button strong{font-size:16px}.ingredient-button:disabled{opacity:.65}.ingredient-button:not(:disabled):hover{background:#fff9df}.ingredient-button:not(:disabled):active{background:#f5db87}
-.game .ingredient-button canvas{display:block;width:44px;height:44px;min-height:0;object-fit:contain;image-rendering:pixelated;pointer-events:none}
-.portion-count{padding:1px 8px;background:#e9d3a7;color:#695236;border-radius:12px;font-size:14px;line-height:1.3}
-.cup-area{display:flex;flex-direction:column;align-items:center;min-width:0;gap:0}.game #mixing-stage{width:160px;max-width:100%;height:120px;min-height:0;object-fit:contain;image-rendering:pixelated;pointer-events:none}
-#cup-stock{font-size:14px;color:#695236}.mixing-actions{display:flex;flex-direction:column;align-items:stretch;gap:6px;min-width:0}.mixing-actions #serve{padding:10px 8px;min-height:44px;font-size:16px}.mixing-actions .quiet{padding:5px;min-height:32px;font-size:14px;color:#765339}
-.mixing-actions #progress{margin:0;text-align:center;font-size:14px;line-height:1.3;min-height:36px;color:#695236}
+/* A narrow ingredient shelf lives beside the street. Keep controls native and
+   names in accessible labels, while the visible shelf uses icons and counts. */
+.game.is-playing{display:grid;grid-template-columns:84px minmax(0,1fr)}
+.game.is-playing>.hud,.game.is-playing>.mixing-counter{grid-column:1 / -1}
+.game.is-playing>#scene{grid-column:2;height:clamp(240px,35vh,340px);min-height:0;object-fit:contain}
+.ingredient-buttons{position:absolute;left:12px;top:76px;display:grid;gap:8px;width:60px}
+.ingredient-button{display:grid;grid-template-columns:1fr 1fr;justify-items:center;align-items:center;gap:2px;padding:5px 3px;background:#fff2cf;border-color:#87623f;box-shadow:0 3px #87623f;font-size:12px;line-height:1.2;min-height:62px}
+.game .ingredient-button canvas{grid-column:1 / -1;width:32px;height:32px;min-height:0;object-fit:contain;pointer-events:none}
+.ingredient-button:not(:disabled):hover{background:#fff9df}.ingredient-button:not(:disabled):active{background:#f5db87}
+.portion-count{padding:1px 3px;background:#e9d3a7;color:#695236;border-radius:8px;font-size:12px}
+.mixing-counter{background:#e5c49a;border-top:4px solid #87623f;padding:8px 14px;box-shadow:inset 0 3px #f2dab6}
+.order-line{display:flex;align-items:center;gap:10px;min-height:32px;margin-bottom:4px}.order-line strong{font-size:15px;flex:1}
+.stand-controls{display:flex;align-items:center;gap:8px;flex-shrink:0}.stand-controls button{font-size:14px;min-height:36px;padding:5px 10px}.stand-controls #end-day{background:#fff2cf;border-color:#87623f;box-shadow:0 2px #87623f}.stand-controls .quiet{margin:0;padding:5px 8px}
+#customer-patience{width:70px;height:8px;accent-color:#7b914b;border:0;border-radius:4px;overflow:hidden}#customer-patience::-webkit-progress-bar{background:#b89b76}#customer-patience::-webkit-progress-value{background:#7b914b}
+.mixing-layout{display:grid;grid-template-columns:96px minmax(0,1fr);align-items:center;gap:14px;max-width:550px;margin:auto}
+.cup-area{display:flex;flex-direction:column;align-items:center;min-width:0}.game #mixing-stage{width:88px;height:60px;min-height:0;object-fit:contain;pointer-events:none}
+#cup-stock{font-size:12px;color:#695236}
+.mixing-actions{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:3px 8px;min-width:0}.mixing-actions #serve{padding:7px 12px;min-height:40px;font-size:15px}.mixing-actions .quiet{padding:5px;min-height:36px;font-size:13px;color:#765339}.mixing-actions #progress{grid-column:1 / -1;margin:0;text-align:center;font-size:12px;line-height:1.3;color:#695236;min-height:16px}
 .stand-price label{display:flex;align-items:center;gap:12px;font-size:14px}.stand-price input{width:110px}#setup .stand-price{margin-top:8px}
-@media(max-width:650px){.game.is-playing > #scene{height:clamp(170px,28vh,240px)}.mixing-counter{padding:8px 10px 10px}.order-line{gap:6px;margin-bottom:7px}.order-line strong{font-size:14px}.order-line .quiet{font-size:14px;padding:3px 6px}#customer-patience{width:40px}.mixing-layout{grid-template-columns:1fr 1fr;gap:8px 12px}.ingredient-buttons{grid-column:1 / -1;gap:7px}.ingredient-button{display:grid;grid-template-columns:36px 1fr;align-items:center;gap:1px 3px;padding:7px 5px;text-align:center}.game .ingredient-button canvas{grid-row:1 / 4;width:36px;height:36px}.ingredient-button strong{font-size:14px}.ingredient-button span{font-size:12px}.portion-count{padding:0 4px}.game #mixing-stage{height:96px;width:128px}.mixing-actions{gap:2px}.mixing-actions #serve{font-size:14px;padding:7px 6px}.mixing-actions #progress{font-size:12px;min-height:31px}.mixing-actions .quiet{padding:3px;font-size:14px}}
+@media(max-width:650px){.game.is-playing{grid-template-columns:74px minmax(0,1fr)}.game.is-playing>#scene{height:clamp(240px,32vh,300px)}.ingredient-buttons{left:8px;top:76px;width:56px;gap:8px}.ingredient-button{min-height:62px}.mixing-counter{padding:6px 8px}.order-line{gap:5px;flex-wrap:wrap}.order-line strong{font-size:13px;min-width:110px}.stand-controls{gap:3px}.stand-controls button{padding:5px 7px;font-size:13px}.stand-controls .quiet{padding:5px}#customer-patience{width:35px}.mixing-layout{grid-template-columns:72px minmax(0,1fr);gap:6px}.game #mixing-stage{width:68px;height:52px}.mixing-actions{gap:3px 5px}.mixing-actions #serve{font-size:14px;padding:6px}.mixing-actions .quiet{font-size:12px}.mixing-actions #progress{font-size:12px}}
 /* Market has its own scene and purchase counter, outside the home modal. */
 .game.is-market > #scene{background:#9ba7a0}
 .market-panel{padding:12px 18px 10px;background:#fff6df;border-top:5px solid #94734e}

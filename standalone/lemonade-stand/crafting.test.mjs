@@ -49,3 +49,18 @@ test('varied live recipes finish full seeded days with exact cash and bounded in
   assert.equal(g.phase,'summary');assert.ok(g.stats.sold<=10);assert.deepEqual(g.state.inventory.slice(1),[20,20,20].map((n,i)=>n-spent[i]));assert.equal(g.state.cash,2000-g.stats.cost+g.stats.revenue+g.stats.tips);assert.equal(g.stats.sold,g.events.length);assert.equal(g.stats.profit,g.stats.revenue+g.stats.tips-g.stats.cost);
  }
 });
+
+test('early closing settles sales and tips, discards an unfinished mix once, and works while paused',()=>{
+ const g=counter();fillCup(g,[1,2,2]);g.serve();tick(g,1.3);
+ customer(g,2);g.tick(0);fillCup(g);g.serve();g.paused=true;
+ const stock=[...g.state.inventory],cash=g.state.cash,weather=g.tomorrow;
+ assert.equal(g.finishDay(),true);assert.equal(g.phase,'summary');assert.equal(g.stats.sold,1);assert.equal(g.stats.tips,30);assert.equal(g.stats.wasted,1);
+ assert.deepEqual(g.state.inventory,stock);assert.equal(g.state.cash,cash);assert.equal(g.stats.profit,g.stats.revenue+g.stats.tips-g.stats.cost);
+ assert.equal(g.making,null);assert.equal(g.drink,null);assert.equal(g.queue.length,0);assert.equal(g.people.length,0);assert.equal(g.paused,false);
+ assert.equal(g.finishDay(),false);tick(g,3);assert.equal(g.stats.wasted,1);assert.equal(g.stats.sold,1);assert.equal(g.state.cash,cash);
+ g.next();assert.equal(g.phase,'setup');assert.equal(g.state.day,2);assert.equal(g.conditions,weather);assert.deepEqual(g.state.inventory,stock);
+});
+test('early closing before any customer has no phantom sale, waste or refund',()=>{
+ const g=new Simulation(()=>.5);assert.equal(g.finishDay(),false);openStand(g,[5,5,5,5]);const stock=[...g.state.inventory],cash=g.state.cash;
+ assert.equal(g.finishDay(),true);assert.equal(g.stats.sold,0);assert.equal(g.stats.wasted,0);assert.equal(g.stats.profit,-g.stats.cost);assert.equal(g.state.cash,cash);assert.deepEqual(g.state.inventory,stock);
+});
