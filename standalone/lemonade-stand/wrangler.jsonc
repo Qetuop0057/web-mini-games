@@ -1,0 +1,13 @@
+// Serve only the exported browser files; no backend Worker is needed.
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "qetuop-lemonade-stand",
+  "compatibility_date": "2026-10-04",
+  "account_id": "201949bff4aff6b9a9b0725859b9cdae",
+  "workers_dev": true,
+  "assets": {
+    "directory": "./out",
+    "html_handling": "force-trailing-slash",
+    "not_found_handling": "none"
+  }
+}

@@ -31,11 +31,11 @@ Cards and route metadata use the shared registry. Every game has its own URL and
 
 The main website is a portal: cards lead to introduction pages, and Start game leads to a separate game origin in the same tab. Coming-soon games have no launch link or fabricated screenshots.
 
-Lemonade Stand runs independently at https://qetuop-lemonade-stand.yuanz1.chatgpt.site. Its source is in `standalone/lemonade-stand/`: a static browser game with a $20 start, weather, supplies, recipe editing, price-sensitive customers, daily summaries, and inventory carryover. Supply prices are adjusted from the lab for browser play. Refreshing resets the session; persistent saves are not implemented yet.
+Lemonade Stand runs independently at https://qetuop-lemonade-stand.qetuop-games.workers.dev. Its source is in `standalone/lemonade-stand/`: a static browser game with a $15 start, ten each of cups/lemons/sugar/ice, five each of strawberries/watermelons, live drink preparation, weather forecasts, a market, unlockable locations, customer preferences, tips, and daily summaries. Supply prices are adjusted from the lab for browser play. Refreshing resets the session; persistent saves are not implemented yet.
 
 Preview PNGs in `public/previews/` are actual screenshots of the game. Refresh them when the game UI changes.
 
-Run the standalone game locally with `python3 -m http.server 3001 --directory standalone/lemonade-stand`, and test its rules with `node --test standalone/lemonade-stand/engine.test.mjs`.
+Run the standalone game locally with `python3 -m http.server 3001 --directory standalone/lemonade-stand`, and test its rules with `node --test standalone/lemonade-stand/*.test.mjs`.
 
 
 ## Checks
@@ -45,3 +45,16 @@ npm run lint
 npm run typecheck
 npm run build
 ```
+
+## Cloudflare deployment
+
+The portal and game are separate Workers Static Assets projects. Neither needs a backend or database. The two `wrangler.jsonc` files publish only the generated `out` directories.
+
+```sh
+npm ci
+npx wrangler login
+npm run deploy:arcade
+npm run deploy:lemonade
+```
+
+Wrangler prints each public `workers.dev` URL after deployment. Update the portal's `playUrl` in `src/games/registry.ts` and the game's Arcade link in `standalone/lemonade-stand/index.html` if these URLs change, then redeploy. These commands deploy manually; a Git push alone does not deploy.
