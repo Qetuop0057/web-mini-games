@@ -2,7 +2,7 @@
 
 A browser arcade for discovering and playing small games. The first playable title, **Lemonade Stand**, turns a command-line lab idea into an interactive 2D business simulation with pixel art, moving customers, and drinks made to order.
 
-**[Explore the arcade](https://qetuop-mini-arcade.qetuop-games.workers.dev/)** · **[Play Lemonade Stand](https://qetuop-lemonade-stand.qetuop-games.workers.dev/)**
+**[Explore the arcade](https://mini-arcade.mini-arcade-hub.workers.dev/)** · **[Play Lemonade Stand](https://lemonade-stand.mini-arcade-hub.workers.dev/)**
 
 Play directly in your browser—no installation or account required.
 
