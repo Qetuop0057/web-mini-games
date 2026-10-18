@@ -5,12 +5,11 @@ const soft = { fill: "currentColor", fillOpacity: 0.18 };
 // 前景形状用容器底色填充，挡住后面的线条。
 const knockout = { fill: "var(--icon-bg)" };
 const icons = {
-  controller: <>
-    <rect x="5" y="14" width="38" height="22" rx="11" {...soft} />
-    <rect x="5" y="14" width="38" height="22" rx="11" />
-    <path d="M15 21v8M11 25h8" />
-    <circle cx="31" cy="23" r="1.5" fill="currentColor" /><circle cx="36" cy="27" r="1.5" fill="currentColor" />
-  </>,
+  // Mini games 沿用之前的 Lucide gamepad-2（ISC 许可），按 24 格网放大到 48。
+  controller: <g transform="scale(2)" strokeWidth="1.6">
+    <line x1="6" x2="10" y1="11" y2="11" /><line x1="8" x2="8" y1="9" y2="13" /><line x1="15" x2="15.01" y1="12" y2="12" /><line x1="18" x2="18.01" y1="10" y2="10" />
+    <path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z" />
+  </g>,
   home: <>
     <path d="M8 22 24 9l16 13v17a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2z" {...soft} />
     <path d="M8 22 24 9l16 13v17a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2z" />
