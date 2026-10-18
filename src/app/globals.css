@@ -203,5 +203,6 @@ h3 { font-size: 22px; letter-spacing: -0.5px; font-weight: 700; margin: 0; paddi
 .din-add { display: flex; gap: 10px; margin-top: 12px; }
 .din-add .din-secondary { width: auto; padding: 0 20px; flex: none; }
 
-.din-setup { max-width: 360px; margin: 40px auto 0; }
-.din-setup h1 { margin-bottom: 24px; }
+.din-hint { color: var(--muted); font-size: 15px; line-height: 1.6; margin: 0 0 18px; }
+.din-gap { margin-top: 12px; }
+.din-back { display: block; margin: 14px auto 0; }

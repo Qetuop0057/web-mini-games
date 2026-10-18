@@ -33,4 +33,5 @@ export function createApi(passcode: string) {
   };
 }
 
-export type DinnerApi = ReturnType<typeof createApi>;
+// 共享模式用 createApi，单机模式用 createLocalStore，两者接口一致。
+export type DinnerStore = ReturnType<typeof createApi>;

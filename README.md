@@ -8,7 +8,10 @@ Play directly in your browser—no installation or account required.
 
 ## Order Dinner (点菜)
 
-A shared dinner-ordering app for two, at `/dinner/`. One person orders; both see the same orders and shopping list on their own phones.
+A dinner-ordering app at `/dinner/`. Anyone can browse the menu and fill a basket. The passcode is only asked for when placing an order:
+
+- **With the passcode**, the order is sent to the shared order list, and the device remembers the passcode. Both people then see the same orders and shopping list on their own phones.
+- **Without it**, the app works on its own: orders and the shopping list are kept only on that device.
 
 - **Order from a preset menu.** Each dish can have flavor choices (spice, sweetness, add-ons), ingredients that can be left out, a note, and a number of servings.
 - **DIY dishes.** Write a dish that isn't on the menu, with the ingredients it needs.
