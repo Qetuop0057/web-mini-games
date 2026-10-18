@@ -36,7 +36,9 @@ button, input { font: inherit; }
 a:focus-visible { outline: 3px solid var(--games-mid); outline-offset: 4px; }
 
 /* 顶栏 */
-.top-bar { height: var(--bar-height); background: var(--bar); display: flex; align-items: center; padding: 0 28px; }
+.top-bar { height: var(--bar-height); background: var(--bar); display: flex; align-items: center; justify-content: space-between; padding: 0 28px; }
+.top-bar-link { color: #ffffff; font-size: 15px; font-weight: 500; transition: opacity 0.2s; }
+.top-bar-link:hover { opacity: 0.75; }
 .top-bar-mark { display: flex; gap: 6px; padding: 6px 0; }
 .mark-dot { width: 12px; height: 12px; border-radius: 50%; }
 .mark-dot.games { background: var(--games-mid); }
@@ -90,6 +92,12 @@ h3 { font-size: 22px; letter-spacing: -0.5px; font-weight: 700; margin: 0; paddi
 .preview-image { display: block; width: 100%; height: auto; }
 .preview-empty { padding: 35px; border: 1px dashed var(--line); border-radius: 12px; font-size: 17px; color: var(--muted); }
 
+/* About 页 */
+.about-list { display: grid; grid-template-columns: 180px 1fr; margin: 35px 0 0; max-width: 760px; font-size: 17px; }
+.about-list dt, .about-list dd { margin: 0; padding: 18px 0; border-bottom: 1px solid var(--line); }
+.about-list dt { color: var(--muted); }
+.about-list a { text-decoration: underline; text-underline-offset: 3px; }
+
 .placeholder { display: flex; flex-direction: column; align-items: center; text-align: center; }
 
 @media (max-width: 750px) {
@@ -103,6 +111,7 @@ h3 { font-size: 22px; letter-spacing: -0.5px; font-weight: 700; margin: 0; paddi
   .game-overview { gap: 25px; }
   .title-icon { display: none; }
   .launch-panel { padding: 25px; }
+  .about-list { grid-template-columns: 110px 1fr; font-size: 16px; }
 }
 
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
