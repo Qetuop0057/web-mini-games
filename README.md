@@ -8,7 +8,7 @@ Play directly in your browser—no installation or account required.
 
 ## The experience
 
-The arcade is a hub: choose a game, view its introduction and gameplay previews, then launch its independent website. Lemonade Stand is playable today; Snake and Memory Match are listed as coming soon.
+The arcade is a hub: choose a game, view its introduction and gameplay previews, then launch its independent website. Lemonade Stand is playable today.
 
 In Lemonade Stand, you start with **$15**, ten each of cups, lemons, sugar, and ice, plus five strawberries and five watermelon portions. Buy supplies at the market, choose where to sell, set your price, and prepare each customer's drink before they lose patience.
 
@@ -79,7 +79,7 @@ Deployments are manual; pushing to GitHub alone does not publish a new version.
 
 ## Current scope & next steps
 
-This project is in active development. Game progress currently lasts for the browser session; refreshing starts a new game. Snake and Memory Match are not playable yet, and the market vending machine is a placeholder for future functionality.
+This project is in active development. Game progress currently lasts for the browser session; refreshing starts a new game. The market vending machine is a placeholder for future functionality.
 
 Next steps include persistent saves, more mini games, and expanded market items and town events.
 
