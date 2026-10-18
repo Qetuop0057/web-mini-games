@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { GameCard } from "@/components/game-card";
+import { CatalogCard } from "@/components/catalog-card";
 import { games } from "@/games/registry";
-export const metadata: Metadata = { title: "All games" };
-export default function Games() { return <div className="container page-content"><h1>All games<span className="brand-dot">.</span></h1><div className="game-grid">{games.map(game => <GameCard key={game.slug} game={game} />)}</div></div>; }
+export const metadata: Metadata = { title: "Mini games" };
+export default function Games() { return <div className="container page-content section-games"><h1>Mini games</h1><div className="game-grid">{games.map(game => <CatalogCard key={game.slug} href={`/games/${game.slug}`} item={game} />)}</div></div>; }

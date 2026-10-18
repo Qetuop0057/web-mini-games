@@ -1,6 +1,10 @@
 import Link from "next/link";
-import { GameCard } from "@/components/game-card";
-import { games } from "@/games/registry";
+import { GamepadIcon, UtensilsIcon } from "@/components/icons";
+
+// 主页只做一件事：在游戏平台和生活 app 平台之间二选一。
 export default function Home() {
- return <div className="container"><section className="hero"><div><Link className="button" href="/games">Explore games <span>→</span></Link></div></section><section className="collection"><div className="section-heading"><div><h2>Games</h2></div><Link href="/games">View all games →</Link></div><div className="game-grid">{games.map(game => <GameCard key={game.slug} game={game} />)}</div></section></div>;
+  return <div className="doors">
+    <Link href="/games" className="door door-games"><GamepadIcon className="door-icon" /><span>Mini games</span></Link>
+    <Link href="/apps" className="door door-apps"><UtensilsIcon className="door-icon" /><span>Life apps</span></Link>
+  </div>;
 }

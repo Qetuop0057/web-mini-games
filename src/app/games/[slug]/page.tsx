@@ -12,7 +12,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function GamePage({ params }: { params: Promise<{ slug: string }> }) {
   const game = getGame((await params).slug);
   if (!game) notFound();
-  return <div className="container page-content">
+  return <div className="container page-content section-games">
     <Link href="/games" className="back-link">← All games</Link>
     <div className="game-title"><div><h1>{game.title}</h1></div><span className={`title-icon ${game.color}`}>{game.icon}</span></div>
     <div className="game-overview"><section><h2>About the game</h2><p>{game.about}</p>
