@@ -1,10 +1,21 @@
 # Web Mini Games
 
-A browser arcade for discovering and playing small games. The first playable title, **Lemonade Stand**, turns a command-line lab idea into an interactive 2D business simulation with pixel art, moving customers, and drinks made to order.
+A small hub with two sides: **Mini games** to play and **Life apps** for everyday things. The first game, **Lemonade Stand**, turns a command-line lab idea into an interactive 2D business simulation with pixel art, moving customers, and drinks made to order.
 
 **[Explore the arcade](https://mini-arcade.mini-arcade-hub.workers.dev/)** · **[Play Lemonade Stand](https://lemonade-stand.mini-arcade-hub.workers.dev/)**
 
 Play directly in your browser—no installation or account required.
+
+## Order Dinner (点菜)
+
+A shared dinner-ordering app for two, at `/dinner/`. One person orders; both see the same orders and shopping list on their own phones.
+
+- **Order from a preset menu.** Each dish can have flavor choices (spice, sweetness, add-ons), ingredients that can be left out, a note, and a number of servings.
+- **DIY dishes.** Write a dish that isn't on the menu, with the ingredients it needs.
+- **Shared orders.** Orders move from 已下单 to 在做了 to 开饭啦, and finished orders can be ordered again.
+- **Shopping list.** Ingredients from unfinished orders are merged by name and unit and scaled by servings. Removed ingredients and pantry staples are left out, and either person can tick items or add extras.
+
+The menu lives in [`src/apps/order-dinner/menu.ts`](src/apps/order-dinner/menu.ts). Edit it and redeploy to change dishes.
 
 ## The experience
 
@@ -35,7 +46,7 @@ In Lemonade Stand, you start with **$15**, ten each of cups, lemons, sugar, and 
 - **Modular game rules.** Simulation, customer taste, weather, locations, market purchases, and drink matching live in separate JavaScript modules, apart from the UI and drawing code.
 - **Canvas-based 2D presentation.** Pixel scenes, customer movement, weather effects, and ingredient interactions run in the browser.
 - **Tested game mechanics.** Automated tests cover inventory and cash accounting, tips, wrong orders, customer timeouts, pausing, early closing, weather, and location-specific rules.
-- **Static deployment.** Both websites run on Cloudflare Workers Static Assets. Gameplay runs locally in the browser without a backend or database.
+- **Static pages with a small API.** Both websites run on Cloudflare Workers Static Assets. Gameplay runs entirely in the browser; only Order Dinner calls a Worker API (`worker/index.ts`) backed by Cloudflare D1, protected by a shared passcode.
 
 ## Technology
 
@@ -43,7 +54,8 @@ In Lemonade Stand, you start with **$15**, ten each of cups, lemons, sugar, and 
 | --- | --- |
 | Arcade portal | Next.js App Router, React, TypeScript, Tailwind CSS |
 | Lemonade Stand | JavaScript ES modules, HTML Canvas, CSS |
-| Game tests | Node.js built-in test runner |
+| Order Dinner | React client components, Cloudflare Worker API, Cloudflare D1 |
+| Tests | Node.js built-in test runner |
 | Hosting | Cloudflare Workers Static Assets, Wrangler |
 
 ## Run locally
@@ -63,11 +75,20 @@ python3 -m http.server 3001 --directory standalone/lemonade-stand
 
 Open `http://localhost:3001`.
 
+To run the portal together with the Order Dinner API and a local D1 database, put a local passcode in `.dev.vars` (gitignored), then build and serve with Wrangler:
+
 ```sh
-# Validate the portal and game rules
+echo 'ORDER_PASSCODE="pick-a-local-passcode"' > .dev.vars
+npm run dev:worker
+```
+
+Open `http://localhost:8787/dinner/`.
+
+```sh
+# Validate the portal, the Worker and all tests
 npm run lint
 npm run typecheck
-node --test standalone/lemonade-stand/*.test.mjs
+npm test
 
 # Build and publish the two websites independently
 npx wrangler login
@@ -75,7 +96,14 @@ npm run deploy:arcade
 npm run deploy:lemonade
 ```
 
-Deployments are manual; pushing to GitHub alone does not publish a new version.
+Deployments are manual; pushing to GitHub alone does not publish a new version. `deploy:arcade` applies any new D1 migrations before deploying.
+
+One-time setup for Order Dinner in production:
+
+```sh
+npx wrangler d1 create mini-hub-dinner   # only for a new account; put the printed database_id into wrangler.jsonc
+npx wrangler secret put ORDER_PASSCODE   # the passcode both of you type on first open
+```
 
 ## Current scope & next steps
 

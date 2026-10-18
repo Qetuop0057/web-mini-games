@@ -150,3 +150,7 @@ next-env.d.ts
 
 # Cloudflare local cache and deployment state
 .wrangler/
+
+# Local Worker secrets for `wrangler dev`
+.dev.vars
+.dev.vars.*

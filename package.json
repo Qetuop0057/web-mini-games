@@ -7,10 +7,12 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p worker",
+    "test": "node --test src/apps/order-dinner/*.test.ts standalone/lemonade-stand/*.test.mjs",
+    "dev:worker": "npm run build:cloudflare && wrangler d1 migrations apply mini-hub-dinner --local && wrangler dev",
     "build:cloudflare": "next build --webpack",
     "build:lemonade": "node standalone/lemonade-stand/build.mjs",
-    "deploy:arcade": "npm run build:cloudflare && wrangler deploy --config wrangler.jsonc",
+    "deploy:arcade": "npm run build:cloudflare && wrangler d1 migrations apply mini-hub-dinner --remote && wrangler deploy --config wrangler.jsonc",
     "deploy:lemonade": "npm run build:lemonade && wrangler deploy --config standalone/lemonade-stand/wrangler.jsonc"
   },
   "repository": {
