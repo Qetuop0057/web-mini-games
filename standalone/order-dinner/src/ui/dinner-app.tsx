@@ -1,4 +1,3 @@
-"use client";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { DinnerState, Dish, Order, OrderItem, OrderStatus } from "../types";
 import { dishesById } from "../menu";
@@ -121,18 +120,22 @@ export function DinnerApp() {
   const orders = state?.orders ?? [];
   const openCount = orders.filter((order) => order.status !== "done").length;
   const basketCount = basket.reduce((sum, item) => sum + item.quantity, 0);
-  const tabs: { id: Tab; label: string; count?: number }[] = [
-    { id: "menu", label: "点菜" },
-    { id: "orders", label: "订单", count: openCount },
-    { id: "shopping", label: "买菜" },
+  const tabs: { id: Tab; label: string; title: string; count?: number }[] = [
+    { id: "menu", label: "点菜", title: "今晚吃什么" },
+    { id: "orders", label: "订单", title: "订单", count: openCount },
+    { id: "shopping", label: "买菜", title: "买菜清单" },
   ];
+  const today = new Date().toLocaleDateString("zh-CN", { month: "long", day: "numeric", weekday: "short" });
 
   return <div className="din">
     <header className="din-head">
-      <h1>{tabs.find((entry) => entry.id === tab)?.label}</h1>
-      {passcode !== undefined && (connected
-        ? <button type="button" className="din-link" onClick={() => { setPasscode(null); setState(null); }}>{name} · 共享中 · 退出</button>
-        : <button type="button" className="din-link" onClick={() => setConnecting(true)}>单机 · 输入口令</button>)}
+      <div className="din-head-row">
+        <span className="din-caption">{today}</span>
+        {passcode !== undefined && (connected
+          ? <button type="button" className="din-mode" onClick={() => { setPasscode(null); setState(null); }}>{name} · 共享中 · 退出</button>
+          : <button type="button" className="din-mode" onClick={() => setConnecting(true)}>单机 · 输入口令</button>)}
+      </div>
+      <h1>{tabs.find((entry) => entry.id === tab)?.title}</h1>
     </header>
     {error && <p className="din-error" role="alert">{error}</p>}
 
@@ -147,7 +150,7 @@ export function DinnerApp() {
     /> : <p className="din-empty">正在加载…</p>)}
 
     {tab === "menu" && basketCount > 0 && <button type="button" className="din-basket-bar" onClick={() => setBasketOpen(true)}>
-      <span>已选 {basketCount} 份</span><span>去下单 →</span>
+      <span>已点 {basketCount} 份</span><span>下单 →</span>
     </button>}
 
     <nav className="din-tabs" aria-label="点菜 app">

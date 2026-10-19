@@ -2,13 +2,15 @@
 
 A small hub with two sides: **Mini games** to play and **Life apps** for everyday things. The first game, **Lemonade Stand**, turns a command-line lab idea into an interactive 2D business simulation with pixel art, moving customers, and drinks made to order.
 
-**[Explore the arcade](https://mini-arcade.mini-arcade-hub.workers.dev/)** · **[Play Lemonade Stand](https://lemonade-stand.mini-arcade-hub.workers.dev/)**
+**[Explore the hub](https://mini-arcade.mini-arcade-hub.workers.dev/)** · **[Play Lemonade Stand](https://lemonade-stand.mini-arcade-hub.workers.dev/)** · **[Open Order Dinner](https://order-dinner.mini-arcade-hub.workers.dev/)**
+
+The hub only introduces each game and app. Every one of them is its own website with its own look, deployed separately from [`standalone/`](standalone), and can be opened without going through the hub.
 
 Play directly in your browser—no installation or account required.
 
 ## Order Dinner (点菜)
 
-A dinner-ordering app at `/dinner/`. Anyone can browse the menu and fill a basket. The passcode is only asked for when placing an order:
+A dinner-ordering app with the look of a small home restaurant: a menu with dotted leaders, stamped order tickets, and a notepad shopping list. Anyone can browse the menu and fill a basket. The passcode is only asked for when placing an order:
 
 - **With the passcode**, the order is sent to the shared order list, and the device remembers the passcode. Both people then see the same orders and shopping list on their own phones.
 - **Without it**, the app works on its own: orders and the shopping list are kept only on that device.
@@ -18,7 +20,7 @@ A dinner-ordering app at `/dinner/`. Anyone can browse the menu and fill a baske
 - **Shared orders.** Orders move from 已下单 to 在做了 to 开饭啦, and finished orders can be ordered again.
 - **Shopping list.** Ingredients from unfinished orders are merged by name and unit and scaled by servings. Removed ingredients and pantry staples are left out, and either person can tick items or add extras.
 
-The menu lives in [`src/apps/order-dinner/menu.ts`](src/apps/order-dinner/menu.ts). Edit it and redeploy to change dishes.
+The menu lives in [`standalone/order-dinner/src/menu.ts`](standalone/order-dinner/src/menu.ts). Edit it and run `npm run deploy:dinner` to change dishes.
 
 ## The experience
 
@@ -44,12 +46,12 @@ In Lemonade Stand, you start with **$15**, ten each of cups, lemons, sugar, and 
 
 ## Engineering highlights
 
-- **Independent portal and game.** The Next.js portal and standalone game deploy separately, with launch and return links connecting them.
+- **Independent portal and sites.** The Next.js portal, the game and the app each deploy separately, with launch links connecting them.
 - **A reusable game registry.** Shared metadata drives game cards and introduction routes, making it straightforward to add more titles.
 - **Modular game rules.** Simulation, customer taste, weather, locations, market purchases, and drink matching live in separate JavaScript modules, apart from the UI and drawing code.
 - **Canvas-based 2D presentation.** Pixel scenes, customer movement, weather effects, and ingredient interactions run in the browser.
 - **Tested game mechanics.** Automated tests cover inventory and cash accounting, tips, wrong orders, customer timeouts, pausing, early closing, weather, and location-specific rules.
-- **Static pages with a small API.** Both websites run on Cloudflare Workers Static Assets. Gameplay runs entirely in the browser; only Order Dinner calls a Worker API (`worker/index.ts`) backed by Cloudflare D1, protected by a shared passcode.
+- **Static pages with a small API.** Both websites run on Cloudflare Workers Static Assets. Gameplay runs entirely in the browser; only Order Dinner calls a Worker API ([`standalone/order-dinner/worker/index.ts`](standalone/order-dinner/worker/index.ts)) backed by Cloudflare D1, protected by a shared passcode.
 
 ## Technology
 
@@ -57,7 +59,7 @@ In Lemonade Stand, you start with **$15**, ten each of cups, lemons, sugar, and 
 | --- | --- |
 | Arcade portal | Next.js App Router, React, TypeScript, Tailwind CSS |
 | Lemonade Stand | JavaScript ES modules, HTML Canvas, CSS |
-| Order Dinner | React client components, Cloudflare Worker API, Cloudflare D1 |
+| Order Dinner | Vite, React, TypeScript, Cloudflare Worker API, Cloudflare D1 |
 | Tests | Node.js built-in test runner |
 | Hosting | Cloudflare Workers Static Assets, Wrangler |
 
@@ -78,14 +80,14 @@ python3 -m http.server 3001 --directory standalone/lemonade-stand
 
 Open `http://localhost:3001`.
 
-To run the portal together with the Order Dinner API and a local D1 database, put a local passcode in `.dev.vars` (gitignored), then build and serve with Wrangler:
+To run Order Dinner with its API and a local D1 database, put a local passcode in `standalone/order-dinner/.dev.vars` (gitignored), then build and serve with Wrangler:
 
 ```sh
-echo 'ORDER_PASSCODE="pick-a-local-passcode"' > .dev.vars
-npm run dev:worker
+echo 'ORDER_PASSCODE="pick-a-local-passcode"' > standalone/order-dinner/.dev.vars
+npm run dev:dinner
 ```
 
-Open `http://localhost:8787/dinner/`.
+Open `http://localhost:8787`.
 
 ```sh
 # Validate the portal, the Worker and all tests
@@ -93,19 +95,20 @@ npm run lint
 npm run typecheck
 npm test
 
-# Build and publish the two websites independently
+# Build and publish each website independently
 npx wrangler login
 npm run deploy:arcade
 npm run deploy:lemonade
+npm run deploy:dinner
 ```
 
-Deployments are manual; pushing to GitHub alone does not publish a new version. `deploy:arcade` applies any new D1 migrations before deploying.
+Deployments are manual; pushing to GitHub alone does not publish a new version. `deploy:dinner` applies any new D1 migrations before deploying.
 
 One-time setup for Order Dinner in production:
 
 ```sh
-npx wrangler d1 create mini-hub-dinner   # only for a new account; put the printed database_id into wrangler.jsonc
-npx wrangler secret put ORDER_PASSCODE   # the passcode both of you type on first open
+npx wrangler d1 create mini-hub-dinner   # only for a new account; put the printed database_id into standalone/order-dinner/wrangler.jsonc
+npx wrangler secret put ORDER_PASSCODE --config standalone/order-dinner/wrangler.jsonc   # the passcode asked for when placing an order
 ```
 
 ## Current scope & next steps

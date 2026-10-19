@@ -1,0 +1,132 @@
+/* 今晚吃什么：家里小饭馆的样子。米色纸底、墨色字、朱红点缀，菜名用宋体。 */
+:root {
+  --paper: #fbf6ec;
+  --card: #fffdf8;
+  --ink: #3a2a20;
+  --muted: #9a8573;
+  --rule: #eadfcc;
+  --dots: #cdbba3;
+  --red: #c8402b;
+  --red-soft: #f6e1d8;
+  --green: #3f6b4a;
+  --serif: "Noto Serif SC", "Songti SC", "STSong", serif;
+  --sans: ui-sans-serif, system-ui, -apple-system, "PingFang SC", sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--sans); }
+button, input, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
+
+.din { max-width: 520px; margin: 0 auto; padding: calc(18px + env(safe-area-inset-top)) 18px 150px; }
+.din h1, .din h2 { font-family: var(--serif); font-weight: 700; margin: 0; }
+.din h1 { font-size: 30px; letter-spacing: 1px; margin-top: 2px; }
+.din h2 { font-size: 22px; }
+.din h3 { font-size: 14px; font-weight: 600; margin: 0 0 10px; }
+.din h3 small { font-weight: 400; color: var(--muted); margin-left: 8px; }
+
+.din-head { margin-bottom: 14px; }
+.din-head-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.din-caption { font-size: 13px; color: var(--muted); letter-spacing: 1px; }
+.din-mode { border: 0; background: none; padding: 4px 0; font-size: 13px; color: var(--muted); text-decoration: underline; text-underline-offset: 3px; }
+.din-stack { display: flex; flex-direction: column; gap: 16px; }
+.din-empty { color: var(--muted); margin: 24px 0; text-align: center; font-family: var(--serif); }
+.din-error { color: var(--red); font-size: 14px; margin: 8px 0; }
+.din-hint { color: var(--muted); font-size: 14px; line-height: 1.6; margin: 0 0 18px; }
+
+/* 分类：带下划线的文字标签 */
+.din-cats { display: flex; gap: 20px; overflow-x: auto; scrollbar-width: none; border-bottom: 1px solid var(--rule); margin: 0 -18px; padding: 0 18px; }
+.din-cats button { flex: none; border: 0; background: none; padding: 8px 0 10px; font-size: 15px; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.din-cats button.on { color: var(--red); border-bottom-color: var(--red); }
+
+/* 菜单：菜名 · 点线 · 圆圈 */
+.din-menu { list-style: none; margin: 6px 0 0; padding: 0; }
+.din-menu-row { width: 100%; display: flex; align-items: center; gap: 10px; border: 0; background: none; padding: 15px 0; text-align: left; }
+.din-menu-name { font-family: var(--serif); font-size: 18px; font-weight: 500; }
+.din-leader { flex: 1; border-bottom: 2px dotted var(--dots); transform: translateY(-4px); }
+.din-plus { flex: none; width: 30px; height: 30px; border-radius: 50%; border: 1.5px solid var(--red); color: var(--red); display: flex; align-items: center; justify-content: center; font-size: 17px; line-height: 1; }
+.din-plus.on { background: var(--red); color: var(--paper); font-size: 15px; font-weight: 600; }
+.din-menu-row.diy .din-menu-name { color: var(--muted); }
+.din-menu-row:active .din-plus { transform: scale(0.92); }
+
+/* 底部：已点 + 分页 */
+.din-basket-bar { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(70px + env(safe-area-inset-bottom)); width: min(484px, calc(100% - 36px)); display: flex; justify-content: space-between; border: 0; border-radius: 14px; background: var(--red); color: var(--paper); padding: 15px 18px; font-size: 16px; font-weight: 600; box-shadow: 0 6px 18px #c8402b40; z-index: 20; }
+.din-tabs { position: fixed; left: 0; right: 0; bottom: 0; display: flex; justify-content: center; background: var(--paper); border-top: 1px solid var(--rule); padding: 6px 8px calc(6px + env(safe-area-inset-bottom)); z-index: 20; }
+.din-tabs button { flex: 1; max-width: 170px; border: 0; background: none; color: var(--muted); font-size: 15px; padding: 12px 0; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.din-tabs button.on { color: var(--red); font-weight: 600; }
+.din-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; background: var(--red); color: var(--paper); font-size: 12px; font-weight: 600; }
+
+/* 弹出面板 */
+.din-overlay { position: fixed; inset: 0; background: #3a2a2066; display: flex; align-items: flex-end; justify-content: center; z-index: 40; }
+.din-sheet { width: 100%; max-width: 520px; max-height: 88vh; overflow-y: auto; background: var(--paper); border-radius: 20px 20px 0 0; padding: 20px 18px calc(22px + env(safe-area-inset-bottom)); }
+.din-sheet-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.din-close { border: 0; background: none; font-size: 28px; line-height: 1; color: var(--muted); padding: 0 4px; }
+.din-field { display: block; margin: 0 0 18px; }
+.din-row { display: flex; align-items: center; justify-content: space-between; }
+.din-row h3 { margin: 0; }
+.din input:not([type="checkbox"]), .din textarea { width: 100%; border: 1px solid var(--rule); border-radius: 10px; background: var(--card); padding: 12px; font-size: 16px; }
+.din textarea { resize: vertical; }
+.din-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.din-chip { border: 1.5px solid var(--rule); background: var(--card); border-radius: 999px; padding: 7px 14px; font-size: 15px; }
+.din-chip.on { border-color: var(--red); background: var(--red); color: var(--paper); }
+.din-chip.off { border-color: var(--dots); background: transparent; color: var(--muted); text-decoration: line-through; }
+.din-stepper { display: flex; align-items: center; gap: 14px; font-size: 18px; font-weight: 600; }
+.din-stepper button { width: 36px; height: 36px; border-radius: 50%; border: 1.5px solid var(--red); background: none; color: var(--red); font-size: 20px; line-height: 1; }
+
+/* 按钮 */
+.din-primary, .din-secondary { width: 100%; border-radius: 12px; padding: 15px; font-size: 16px; font-weight: 600; }
+.din-primary { border: 0; background: var(--red); color: var(--paper); }
+.din-primary:disabled { opacity: 0.55; cursor: default; }
+.din-secondary { border: 1.5px solid var(--dots); background: none; }
+.din-gap { margin-top: 12px; }
+.din-back { display: block; margin: 14px auto 0; }
+.din-ink { border: 0; border-radius: 10px; background: var(--ink); color: var(--paper); padding: 11px 18px; font-size: 15px; font-weight: 600; }
+.din-outline { border: 1.5px solid var(--ink); border-radius: 10px; background: none; padding: 9px 16px; font-size: 15px; }
+.din-link { border: 0; background: none; padding: 6px 2px; font-size: 14px; color: var(--muted); text-decoration: underline; text-underline-offset: 3px; }
+.din-link.strong { color: var(--red); font-weight: 600; text-decoration: none; }
+
+/* 购物篮里的菜 */
+.din-lines { list-style: none; padding: 0; margin: 0 0 18px; }
+.din-lines li { display: flex; justify-content: space-between; gap: 12px; padding: 12px 0; border-bottom: 1px dashed var(--dots); }
+.din-line-main { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.din-line-main strong { font-family: var(--serif); font-size: 17px; font-weight: 500; }
+.din-qty { color: var(--red); }
+.din-detail { color: var(--muted); font-size: 13px; }
+.din-line-actions { display: flex; flex-direction: column; align-items: flex-end; }
+
+/* 订单小票 */
+.din-ticket { position: relative; background: var(--card); border: 1.5px dashed var(--dots); border-radius: 8px; padding: 14px 16px 12px; }
+.din-ticket.done { opacity: 0.75; }
+.din-ticket-meta { font-family: var(--mono); font-size: 12px; color: var(--muted); padding-right: 76px; }
+.din-stamp { position: absolute; right: 14px; top: 12px; width: 64px; height: 64px; border-radius: 50%; border: 2.5px solid var(--red); color: var(--red); display: flex; align-items: center; justify-content: center; font-family: var(--serif); font-size: 14px; font-weight: 700; transform: rotate(-14deg); opacity: 0.9; }
+.din-stamp.done { border-color: var(--green); color: var(--green); }
+.din-ticket-items { list-style: none; padding: 0; margin: 14px 0 0; }
+.din-ticket-items li { display: flex; flex-direction: column; gap: 2px; padding: 6px 0; padding-right: 60px; }
+.din-ticket-items li + li { padding-right: 0; }
+.din-ticket-items strong { font-family: var(--serif); font-size: 17px; font-weight: 500; }
+.din-ticket-items span { color: var(--muted); font-size: 13px; line-height: 1.5; }
+.din-ticket-note { margin: 10px 0 0; padding-top: 10px; border-top: 1.5px dashed var(--dots); font-style: italic; font-size: 15px; }
+.din-ticket-actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 14px; }
+.din-history summary { cursor: pointer; color: var(--muted); padding: 8px 0; font-size: 14px; }
+.din-history .din-stack { margin-top: 10px; }
+
+/* 买菜：记事本 */
+.din-count { margin: 0 0 6px; }
+.din-notepad { list-style: none; padding: 0; margin: 0; }
+.din-notepad li { display: flex; flex-wrap: wrap; align-items: center; gap: 0 12px; padding: 13px 0; border-bottom: 1px solid var(--rule); }
+.din-notepad label { flex: 1; display: flex; align-items: center; gap: 12px; cursor: pointer; }
+.din-notepad input[type="checkbox"] { appearance: none; flex: none; width: 20px; height: 20px; margin: 0; border: 1.5px solid var(--ink); border-radius: 4px; background: var(--card); display: grid; place-content: center; cursor: pointer; }
+.din-notepad input[type="checkbox"]:checked { background: var(--ink); }
+.din-notepad input[type="checkbox"]:checked::after { content: ""; width: 9px; height: 5px; border: 2px solid var(--paper); border-top: 0; border-right: 0; transform: rotate(-45deg) translate(1px, -1px); }
+.din-pad-name { flex: 1; font-family: var(--serif); font-size: 17px; font-weight: 500; }
+.din-pad-amount { color: var(--muted); font-size: 14px; }
+.din-pad-for { width: 100%; padding-left: 32px; color: var(--muted); font-size: 12px; }
+.din-notepad li.done .din-pad-name, .din-notepad li.done .din-pad-amount { color: var(--muted); text-decoration: line-through; }
+.din-pad-add form { width: 100%; display: flex; align-items: center; gap: 12px; }
+.din-pad-add span { width: 20px; text-align: center; color: var(--red); font-size: 20px; }
+.din .din-pad-add input { flex: 1; border: 0; background: none; padding: 0; font-size: 16px; border-radius: 0; }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }

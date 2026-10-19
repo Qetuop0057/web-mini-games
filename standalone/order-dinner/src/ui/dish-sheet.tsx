@@ -1,4 +1,3 @@
-"use client";
 import { useState } from "react";
 import type { Dish, OrderItem } from "../types";
 import { defaultChoices } from "../shopping";

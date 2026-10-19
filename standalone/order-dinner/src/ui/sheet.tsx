@@ -1,4 +1,3 @@
-"use client";
 import { useEffect, useRef, type ReactNode } from "react";
 
 // 从底部弹出的面板；按 Esc 或点遮罩关闭。

@@ -1,4 +1,3 @@
-"use client";
 import { useState, type FormEvent, type ReactNode } from "react";
 
 // 填名字和口令；口令对不对由 onSubmit 去服务器确认，失败时把错误显示在这里。

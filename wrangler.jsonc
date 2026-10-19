@@ -1,24 +1,13 @@
-// Static pages come from the Next.js export; /api/* goes to the Worker, which stores dinner orders in D1.
+// Serve only the exported portal pages; each mini app deploys as its own site from standalone/.
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "mini-arcade",
-  "main": "worker/index.ts",
   "compatibility_date": "2026-10-04",
   "account_id": "201949bff4aff6b9a9b0725859b9cdae",
   "workers_dev": true,
   "assets": {
     "directory": "./out",
-    "binding": "ASSETS",
     "html_handling": "force-trailing-slash",
-    "not_found_handling": "404-page",
-    "run_worker_first": ["/api/*"]
-  },
-  "d1_databases": [
-    {
-      "binding": "DB",
-      "database_name": "mini-hub-dinner",
-      "database_id": "b0dfb25b-61c7-423f-a8ac-4f604a523e93",
-      "migrations_dir": "migrations"
-    }
-  ]
+    "not_found_handling": "404-page"
+  }
 }

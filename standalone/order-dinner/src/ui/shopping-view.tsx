@@ -1,10 +1,9 @@
-"use client";
 import { useState, type FormEvent } from "react";
 import type { DinnerState } from "../types";
 import { dishesById } from "../menu";
 import { buildShoppingList, formatAmount, isLineChecked, type ShoppingLine } from "../shopping";
 
-// 由还没做完的订单自动生成；勾选状态两个人共享。下面可以手动加几样。
+// 记事本样式的买菜清单：由还没做完的订单自动生成，最后一行可以手动加。
 export function ShoppingView({ state, onCheck, onAddExtra, onCheckExtra, onDeleteExtra }: {
   state: DinnerState;
   onCheck: (line: ShoppingLine, checked: boolean) => void;
@@ -16,6 +15,7 @@ export function ShoppingView({ state, onCheck, onAddExtra, onCheckExtra, onDelet
   const lines = buildShoppingList(state.orders, dishesById)
     .map((line) => ({ line, checked: isLineChecked(line, state.checks) }))
     .sort((a, b) => Number(a.checked) - Number(b.checked));
+  const total = lines.length + state.extras.length;
   const left = lines.filter((entry) => !entry.checked).length + state.extras.filter((entry) => !entry.checked).length;
 
   async function add(event: FormEvent) {
@@ -26,29 +26,31 @@ export function ShoppingView({ state, onCheck, onAddExtra, onCheckExtra, onDelet
     setExtra("");
   }
 
-  return <div className="din-stack">
-    <p className="din-summary">{lines.length + state.extras.length === 0 ? "现在没有要买的" : left === 0 ? "都买齐了" : `还差 ${left} 样`}</p>
-    {lines.length > 0 && <ul className="din-checklist">{lines.map(({ line, checked }) => <li key={line.key} className={checked ? "done" : ""}>
-      <label>
-        <input type="checkbox" checked={checked} onChange={(event) => onCheck(line, event.target.checked)} />
-        <span className="din-check-name">{line.name}</span>
-        <span className="din-check-amount">{formatAmount(line)}</span>
-      </label>
-      <span className="din-detail">{line.dishes.join("、")}</span>
-    </li>)}</ul>}
-    <section>
-      <h3 className="din-subhead">另外要买</h3>
-      {state.extras.length > 0 && <ul className="din-checklist">{state.extras.map((entry) => <li key={entry.id} className={entry.checked ? "done" : ""}>
+  return <>
+    <p className="din-caption din-count">{total === 0 ? "现在没有要买的" : left === 0 ? "都买齐了" : `还差 ${left} 样`}</p>
+    <ul className="din-notepad">
+      {lines.map(({ line, checked }) => <li key={line.key} className={checked ? "done" : ""}>
+        <label>
+          <input type="checkbox" checked={checked} onChange={(event) => onCheck(line, event.target.checked)} />
+          <span className="din-pad-name">{line.name}</span>
+          <span className="din-pad-amount">{formatAmount(line)}</span>
+        </label>
+        <span className="din-pad-for">{line.dishes.join("、")}</span>
+      </li>)}
+      {state.extras.map((entry) => <li key={entry.id} className={entry.checked ? "done" : ""}>
         <label>
           <input type="checkbox" checked={entry.checked} onChange={(event) => onCheckExtra(entry.id, event.target.checked)} />
-          <span className="din-check-name">{entry.name}</span>
+          <span className="din-pad-name">{entry.name}</span>
         </label>
-        <button type="button" className="din-link danger" onClick={() => onDeleteExtra(entry.id)}>删掉</button>
-      </li>)}</ul>}
-      <form className="din-add" onSubmit={add}>
-        <input value={extra} maxLength={40} placeholder="牛奶" aria-label="要另外买的东西" onChange={(event) => setExtra(event.target.value)} />
-        <button type="submit" className="din-secondary">加上</button>
-      </form>
-    </section>
-  </div>;
+        <button type="button" className="din-link" aria-label={`删掉${entry.name}`} onClick={() => onDeleteExtra(entry.id)}>删掉</button>
+      </li>)}
+      <li className="din-pad-add">
+        <form onSubmit={add}>
+          <span aria-hidden="true">+</span>
+          <input value={extra} maxLength={40} placeholder="另外要买…" aria-label="另外要买的东西" onChange={(event) => setExtra(event.target.value)} />
+          {extra.trim() && <button type="submit" className="din-link strong">加上</button>}
+        </form>
+      </li>
+    </ul>
+  </>;
 }

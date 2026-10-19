@@ -7,13 +7,15 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit && tsc --noEmit -p worker",
-    "test": "node --test src/apps/order-dinner/*.test.ts standalone/lemonade-stand/*.test.mjs",
-    "dev:worker": "npm run build:cloudflare && wrangler d1 migrations apply mini-hub-dinner --local && wrangler dev",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p standalone/order-dinner && tsc --noEmit -p standalone/order-dinner/worker",
+    "test": "node --test standalone/order-dinner/src/*.test.ts standalone/lemonade-stand/*.test.mjs",
     "build:cloudflare": "next build --webpack",
     "build:lemonade": "node standalone/lemonade-stand/build.mjs",
-    "deploy:arcade": "npm run build:cloudflare && wrangler d1 migrations apply mini-hub-dinner --remote && wrangler deploy --config wrangler.jsonc",
-    "deploy:lemonade": "npm run build:lemonade && wrangler deploy --config standalone/lemonade-stand/wrangler.jsonc"
+    "build:dinner": "vite build --config standalone/order-dinner/vite.config.ts",
+    "dev:dinner": "npm run build:dinner && wrangler d1 migrations apply mini-hub-dinner --local --config standalone/order-dinner/wrangler.jsonc && wrangler dev --config standalone/order-dinner/wrangler.jsonc",
+    "deploy:arcade": "npm run build:cloudflare && wrangler deploy --config wrangler.jsonc",
+    "deploy:lemonade": "npm run build:lemonade && wrangler deploy --config standalone/lemonade-stand/wrangler.jsonc",
+    "deploy:dinner": "npm run build:dinner && wrangler d1 migrations apply mini-hub-dinner --remote --config standalone/order-dinner/wrangler.jsonc && wrangler deploy --config standalone/order-dinner/wrangler.jsonc"
   },
   "repository": {
     "type": "git",
@@ -37,10 +39,12 @@
     "@types/node": "^26.6.4",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "6.1.1",
     "eslint": "^9.39.5",
     "eslint-config-next": "^16.3.8",
     "tailwindcss": "^4.3.3",
     "typescript": "^6.0.3",
+    "vite": "8.3.2",
     "wrangler": "4.147.0"
   },
   "private": true

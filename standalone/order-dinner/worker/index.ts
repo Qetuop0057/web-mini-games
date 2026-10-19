@@ -1,4 +1,4 @@
-import type { DinnerState, Order, OrderItem, OrderStatus } from "../src/apps/order-dinner/types";
+import type { DinnerState, Order, OrderItem, OrderStatus } from "../src/types";
 
 // /api/* 由这里处理，其余请求交给静态资源。所有接口都要带上 x-passcode 口令。
 const statuses: OrderStatus[] = ["new", "cooking", "done"];
